@@ -1,0 +1,74 @@
+{
+  "name": "cloudflare-preview-url",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GitHub Action to receive the deployment preview from Cloudflare",
+  "keywords": [
+    "cloudflare",
+    "deployment",
+    "github",
+    "action"
+  ],
+  "homepage": "https://github.com/zentered/cloudflare-preview-url#readme",
+  "bugs": {
+    "url": "https://github.com/zentered/cloudflare-preview-url/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zentered/cloudflare-preview-url.git"
+  },
+  "license": "MIT",
+  "author": "Zentered <hi@zentered.co> (https://zentered.co)",
+  "contributors": [
+    "Patrick Heneise (https://github.com/zentered)"
+  ],
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "npm run lint && npm run test && npm run prepare",
+    "lint": "eslint .",
+    "prepare": "ncc build index.mjs -o dist --source-map --license licenses.txt",
+    "test": "jest",
+    "postinstall": "husky install",
+    "prepublishOnly": "pinst --disable",
+    "postpublish": "pinst --enable"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "lint-staged": {
+    "*.{mjs,js,json,md}": [
+      "prettier --write"
+    ],
+    "*.{mjs,js}": [
+      "eslint --cache --fix"
+    ]
+  },
+  "dependencies": {
+    "@actions/core": "^1.4.0",
+    "axios": "^0.21.1"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.14.7",
+    "@commitlint/config-conventional": "^12.1.4",
+    "@vercel/ncc": "^0.28.6",
+    "babel-jest": "^27.0.6",
+    "commitlint": "^12.1.4",
+    "dotenv": "^10.0.0",
+    "eslint": "^7.30.0",
+    "eslint-plugin-jest": "^24.3.6",
+    "eslint-plugin-node": "^11.1.0",
+    "husky": "^7.0.0",
+    "jest": "^27.0.6",
+    "jest-config": "^27.0.6",
+    "pinst": "^2.1.6",
+    "prettier": "^2.3.2",
+    "webpack": "^5.42.0"
+  },
+  "release": {
+    "branches": [
+      "main"
+    ]
+  }
+}

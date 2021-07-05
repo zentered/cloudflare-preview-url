@@ -1,0 +1,15 @@
+branding:
+  color: orange
+  icon: triangle
+description: 'Receive the deployment preview URL from Cloudflare'
+inputs:
+  cloudflare_project_id:
+    description: 'Cloudflare project id / name'
+    required: true
+name: Cloudflare Preview URL
+outputs:
+  preview_url:
+    description: "A string with the unique URL of the deployment. If it hasn't finished uploading (is incomplete), the value will be null."
+runs:
+  main: dist/index.js
+  using: node12
