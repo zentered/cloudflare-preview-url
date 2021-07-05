@@ -42,7 +42,7 @@ export default async function getDeploymentUrl(
 
   const build = builds[0]
   core.info(
-    `Preview URL: https://${build.url} (${build.latest_stage.name} - ${build.latest_stage.status})`
+    `Preview URL: ${build.url} (${build.latest_stage.name} - ${build.latest_stage.status})`
   )
   return {
     url: build.url
