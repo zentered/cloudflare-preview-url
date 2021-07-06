@@ -4496,7 +4496,7 @@ async function waitForDeployment(
   const build = data.result.filter((d) => d.id === deploymentId)[0]
 
   core.info(
-    `Deployment status (#${build.shortId}) ${build.latest_stage.name}: ${build.latest_stage.status}`
+    `Deployment status (#${build.short_id}) ${build.latest_stage.name}: ${build.latest_stage.status}`
   )
 
   if (!build) {
