@@ -10,8 +10,6 @@ export default async function waitForDeployment(
 ) {
   const apiUrl = `https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${projectId}/deployments`
 
-  core.info(`Checking deployment status: ${deploymentId}`)
-
   const { data } = await axios.get(apiUrl, {
     headers: {
       'X-Auth-Key': token,
@@ -22,6 +20,10 @@ export default async function waitForDeployment(
   })
 
   const build = data.result.filter((d) => d.id === deploymentId)[0]
+
+  core.info(
+    `Deployment status (#${build.shortId}) ${build.latest_stage.name}: ${build.latest_stage.status}`
+  )
 
   if (!build) {
     core.error(data)
