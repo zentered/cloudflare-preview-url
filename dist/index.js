@@ -4467,14 +4467,55 @@ async function getDeploymentUrl(
   core.info(
     `Preview URL: ${build.url} (${build.latest_stage.name} - ${build.latest_stage.status})`
   )
-  return {
-    url: build.url
+
+  return build
+}
+
+;// CONCATENATED MODULE: ./cloudflare-statuscheck.mjs
+
+
+
+async function waitForDeployment(
+  token,
+  accountId,
+  accountEmail,
+  projectId,
+  deploymentId
+) {
+  const apiUrl = `https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${projectId}/deployments`
+
+  core.info(`Checking deployment status: ${deploymentId}`)
+
+  const { data } = await axios.get(apiUrl, {
+    headers: {
+      'X-Auth-Key': token,
+      'X-Auth-Email': accountEmail
+    },
+    responseType: 'json',
+    responseEncoding: 'utf8'
+  })
+
+  const build = data.result.filter((d) => d.id === deploymentId)[0]
+
+  if (!build) {
+    core.error(data)
+    core.setFailed('no build with this ID found.')
   }
+
+  return (
+    build.latest_stage.name === 'deploy' &&
+    build.latest_stage.status === 'success'
+  )
 }
 
 ;// CONCATENATED MODULE: ./index.mjs
 
 
+
+
+async function delay(ms) {
+  return await new Promise((resolve) => setTimeout(resolve, ms))
+}
 
 async function run() {
   try {
@@ -4486,12 +4527,13 @@ async function run() {
     const accountId = process.env.CLOUDFLARE_ACCOUNT_ID
     const accountEmail = process.env.CLOUDFLARE_ACCOUNT_EMAIL
     const projectId = core.getInput('cloudflare_project_id')
+    const waitForDeploymentReady = core.getInput('wait_until_ready')
 
     core.info(
       `Retrieving deployment preview for ${githubRepo}/${githubBranch} ...`
     )
 
-    const { url } = await getDeploymentUrl(
+    const { id, url } = await getDeploymentUrl(
       cloudflareToken,
       accountId,
       accountEmail,
@@ -4499,6 +4541,24 @@ async function run() {
       githubRepo,
       githubBranch
     )
+
+    if (waitForDeploymentReady === 'true') {
+      let deploymentReady = false
+
+      while (!deploymentReady) {
+        deploymentReady = await waitForDeployment(
+          cloudflareToken,
+          accountId,
+          accountEmail,
+          projectId,
+          id
+        )
+
+        if (!deploymentReady) {
+          await delay(2000)
+        }
+      }
+    }
 
     core.setOutput('preview_url', url)
   } catch (error) {

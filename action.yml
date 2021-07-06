@@ -6,6 +6,10 @@ inputs:
   cloudflare_project_id:
     description: 'Cloudflare project id / name'
     required: true
+  wait_until_ready:
+    description: 'Wait for deployment to be ready'
+    required: false
+    default: false
 name: Cloudflare Preview URL
 outputs:
   preview_url:

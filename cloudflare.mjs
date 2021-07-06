@@ -44,7 +44,6 @@ export default async function getDeploymentUrl(
   core.info(
     `Preview URL: ${build.url} (${build.latest_stage.name} - ${build.latest_stage.status})`
   )
-  return {
-    url: build.url
-  }
+
+  return build
 }

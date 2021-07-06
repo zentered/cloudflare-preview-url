@@ -41,6 +41,7 @@ Here are the steps for an example job:
     CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
   with:
     cloudflare_project_id: 'repo-name'
+    wait_until_ready: true
 - name: Get URL
   run: echo "https://${{ steps.cloudflare_preview_url.outputs.preview_url }}"
 ```
@@ -54,9 +55,10 @@ In the repository, go to "Settings", then "Secrets" and add "CLOUDFLARE_API_TOKE
 
 ## Inputs
 
-| Name                    | Requirement | Description                |
-| ----------------------- | ----------- | -------------------------- |
-| `cloudflare_project_id` | required    | Cloudflare project id/name |
+| Name                    | Requirement | Description                                                        |
+| ----------------------- | ----------- | ------------------------------------------------------------------ |
+| `cloudflare_project_id` | required    | Cloudflare project id/name                                         |
+| `wait_until_ready`      | optional    | Wait until the Cloudflare deployment is ready, defaults to "false" |
 
 ## Outputs
 

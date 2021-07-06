@@ -1,5 +1,10 @@
 import core from '@actions/core'
 import getDeploymentUrl from './cloudflare.mjs'
+import checkDeploymentStatus from './cloudflare-statuscheck.mjs'
+
+async function delay(ms) {
+  return await new Promise((resolve) => setTimeout(resolve, ms))
+}
 
 async function run() {
   try {
@@ -11,12 +16,13 @@ async function run() {
     const accountId = process.env.CLOUDFLARE_ACCOUNT_ID
     const accountEmail = process.env.CLOUDFLARE_ACCOUNT_EMAIL
     const projectId = core.getInput('cloudflare_project_id')
+    const waitForDeploymentReady = core.getInput('wait_until_ready')
 
     core.info(
       `Retrieving deployment preview for ${githubRepo}/${githubBranch} ...`
     )
 
-    const { url } = await getDeploymentUrl(
+    const { id, url } = await getDeploymentUrl(
       cloudflareToken,
       accountId,
       accountEmail,
@@ -24,6 +30,24 @@ async function run() {
       githubRepo,
       githubBranch
     )
+
+    if (waitForDeploymentReady === 'true') {
+      let deploymentReady = false
+
+      while (!deploymentReady) {
+        deploymentReady = await checkDeploymentStatus(
+          cloudflareToken,
+          accountId,
+          accountEmail,
+          projectId,
+          id
+        )
+
+        if (!deploymentReady) {
+          await delay(2000)
+        }
+      }
+    }
 
     core.setOutput('preview_url', url)
   } catch (error) {

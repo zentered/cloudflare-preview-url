@@ -1,5 +1,5 @@
 /* eslint-disable node/no-unsupported-features/es-syntax */
-import getDeploymentUrl from './cloudflare.mjs'
+import getDeploymentUrl from '../cloudflare.mjs'
 import axios from 'axios'
 
 jest.mock('@actions/core', () => {
@@ -18,15 +18,15 @@ test('getDeploymentUrl() should return a Cloudflare build', async () => {
         {
           environment: 'production',
           url: 'https://123.cf-project.pages.dev',
-          latest_stage: {
-            name: 'deploy',
-            status: 'success'
-          },
           deployment_trigger: {
             type: 'github:push',
             metadata: {
               branch: 'main'
             }
+          },
+          latest_stage: {
+            name: 'deploy',
+            status: 'success'
           },
           source: {
             type: 'github',
@@ -39,15 +39,15 @@ test('getDeploymentUrl() should return a Cloudflare build', async () => {
         {
           environment: 'preview',
           url: 'https://123.cf-project.pages.dev',
-          latest_stage: {
-            name: 'deploy',
-            status: 'success'
-          },
           deployment_trigger: {
             type: 'github:push',
             metadata: {
               branch: 'fix/test-1'
             }
+          },
+          latest_stage: {
+            name: 'deploy',
+            status: 'success'
           },
           source: {
             type: 'github',
