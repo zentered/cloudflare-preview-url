@@ -4,7 +4,8 @@ import axios from 'axios'
 
 jest.mock('@actions/core', () => {
   return {
-    info: jest.fn()
+    info: jest.fn(),
+    setFailed: jest.fn()
   }
 })
 jest.mock('axios')
@@ -57,4 +58,31 @@ test('waitForDeployment() should wait until a deployment is successful', async (
   )
   expect(firstCheck).toEqual(false)
   expect(secondCheck).toEqual(true)
+})
+
+test('waitForDeployment() should abort when a build has failed', async () => {
+  axios.get.mockResolvedValueOnce({
+    data: {
+      result: [
+        {
+          id: '123abc',
+          environment: 'preview',
+          latest_stage: {
+            name: 'build',
+            status: 'failure'
+          }
+        }
+      ]
+    }
+  })
+
+  await expect(
+    checkDeploymentStatus(
+      '123xyz',
+      'zentered',
+      'user@example.com',
+      'cf-project',
+      '123abc'
+    )
+  ).rejects.toThrow('Build failed. Abort.')
 })
