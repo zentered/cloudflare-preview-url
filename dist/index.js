@@ -4502,6 +4502,12 @@ async function waitForDeployment(
   if (!build) {
     core.error(data)
     core.setFailed('no build with this ID found.')
+    throw new Error('No build id. Abort.')
+  }
+
+  if (build.latest_stage.status === 'failure') {
+    core.setFailed(`${build.latest_stage.name}: ${build.latest_stage.status}`)
+    throw new Error('Build failed. Abort.')
   }
 
   return (
