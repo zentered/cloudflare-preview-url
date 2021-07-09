@@ -48,7 +48,7 @@ Here are the steps for an example job:
 
 We recommend to set a timeout for this action, if something goes wrong with the build, the Action should stop after 10 minutes:
 
-```
+```yaml
 runs-on: ubuntu-latest
 timeout-minutes: 10
 ```
