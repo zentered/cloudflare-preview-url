@@ -46,6 +46,13 @@ Here are the steps for an example job:
   run: echo "https://${{ steps.cloudflare_preview_url.outputs.preview_url }}"
 ```
 
+We recommend to set a timeout for this action, if something goes wrong with the build, the Action should stop after 10 minutes:
+
+```
+runs-on: ubuntu-latest
+timeout-minutes: 10
+```
+
 ## Environment Variables / Secret
 
 In the repository, go to "Settings", then "Secrets" and add "CLOUDFLARE_API_TOKEN", the value you can retrieve on your [Cloudflare account](https://dash.cloudflare.com/profile/api-tokens). You also need to add:
