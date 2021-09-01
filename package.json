@@ -50,7 +50,7 @@
     "axios": "^0.21.1"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.14.9",
+    "@babel/preset-env": "^7.15.0",
     "@commitlint/config-conventional": "^13.1.0",
     "@vercel/ncc": "^0.29.0",
     "babel-jest": "^27.0.6",
