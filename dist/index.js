@@ -23,7 +23,9 @@ module.exports = /******/ (() => {
         accountEmail,
         projectId,
         repo,
-        branch
+        branch,
+        environment,
+        commitHash
       ) {
         const apiUrl = `https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${projectId}/deployments`
 
@@ -46,9 +48,14 @@ module.exports = /******/ (() => {
         core.info(`Found ${data.result.length} deployments`)
         core.debug(`Looking for matching deployments ${repo}/${branch}`)
         const builds = data.result
-          .filter((d) => d.environment === 'preview')
           .filter((d) => d.source.config.repo_name === repo)
           .filter((d) => d.deployment_trigger.metadata.branch === branch)
+          .filter((d) => environment == null || d.environment === environment)
+          .filter(
+            (d) =>
+              commitHash == null ||
+              d.deployment_trigger.metadata?.commit_hash === commitHash
+          )
 
         core.info(`Found ${builds.length} matching builds`)
         if (!builds || builds.length <= 0) {
@@ -126,6 +133,8 @@ module.exports = /******/ (() => {
           const accountEmail = process.env.CLOUDFLARE_ACCOUNT_EMAIL
           const projectId = core.getInput('cloudflare_project_id')
           const waitForDeploymentReady = core.getInput('wait_until_ready')
+          const environment = core.getInput('environment', { required: false })
+          const commitHash = core.getInput('commit_hash', { required: false })
 
           core.info(
             `Retrieving deployment preview for ${githubRepo}/${githubBranch} ...`
@@ -137,7 +146,9 @@ module.exports = /******/ (() => {
             accountEmail,
             projectId,
             githubRepo,
-            githubBranch
+            githubBranch,
+            environment,
+            commitHash
           )
 
           if (waitForDeploymentReady === 'true') {
