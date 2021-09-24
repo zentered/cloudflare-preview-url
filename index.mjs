@@ -17,6 +17,8 @@ async function run() {
     const accountEmail = process.env.CLOUDFLARE_ACCOUNT_EMAIL
     const projectId = core.getInput('cloudflare_project_id')
     const waitForDeploymentReady = core.getInput('wait_until_ready')
+    const environment = core.getInput('environment', { required: false })
+    const commitHash = core.getInput('commit_hash', { required: false })
 
     core.info(
       `Retrieving deployment preview for ${githubRepo}/${githubBranch} ...`
@@ -28,7 +30,9 @@ async function run() {
       accountEmail,
       projectId,
       githubRepo,
-      githubBranch
+      githubBranch,
+      environment,
+      commitHash
     )
 
     if (waitForDeploymentReady === 'true') {

@@ -7,7 +7,9 @@ export default async function getDeploymentUrl(
   accountEmail,
   projectId,
   repo,
-  branch
+  branch,
+  environment,
+  commitHash
 ) {
   const apiUrl = `https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${projectId}/deployments`
 
@@ -30,9 +32,14 @@ export default async function getDeploymentUrl(
   core.info(`Found ${data.result.length} deployments`)
   core.debug(`Looking for matching deployments ${repo}/${branch}`)
   const builds = data.result
-    .filter((d) => d.environment === 'preview')
     .filter((d) => d.source.config.repo_name === repo)
     .filter((d) => d.deployment_trigger.metadata.branch === branch)
+    .filter((d) => environment == null || d.environment === environment)
+    .filter(
+      (d) =>
+        commitHash == null ||
+        d.deployment_trigger.metadata?.commit_hash === commitHash
+    )
 
   core.info(`Found ${builds.length} matching builds`)
   if (!builds || builds.length <= 0) {
