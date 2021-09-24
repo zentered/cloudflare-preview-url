@@ -17,7 +17,7 @@ test('getDeploymentUrl() should return a Cloudflare build', async () => {
       result: [
         {
           environment: 'production',
-          url: 'https://123.cf-project.pages.dev',
+          url: 'https://main.cf-project.pages.dev',
           deployment_trigger: {
             type: 'github:push',
             metadata: {
