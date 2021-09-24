@@ -66,7 +66,9 @@ test('getDeploymentUrl() should return a Cloudflare build', async () => {
     'user@example.com',
     'cf-project',
     'website',
-    'fix/test-1'
+    'fix/test-1',
+    'preview',
+    null
   )
 
   expect(url).toEqual('https://123.cf-project.pages.dev')
@@ -87,7 +89,9 @@ test('getDeploymentUrl() should fail if there are no deployments', async () => {
       'user@example.com',
       'cf-project',
       'website',
-      'fix/test-1'
+      'fix/test-1',
+      'preview',
+      null
     )
   ).rejects.toThrow()
 })
@@ -110,6 +114,13 @@ test('getDeploymentUrl() should fail if there are no matching builds', async () 
   axios.get.mockResolvedValueOnce(data)
 
   await expect(
-    getDeploymentUrl('123xyz', 'zentered', 'fix/huge-bug', 'zentered.co')
+    getDeploymentUrl(
+      '123xyz',
+      'zentered',
+      'fix/huge-bug',
+      'zentered.co',
+      'preview',
+      null
+    )
   ).rejects.toThrow()
 })
