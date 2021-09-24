@@ -11,11 +11,11 @@ inputs:
     required: false
     default: false
   environment:
-    description: "Which Cloudflare deployment environment to check. Defaults to preview. If set to null, doesn't filter on environment."
+    description: "Which Cloudflare deployment environments to allow. If set to null, doesn't filter deploys by environment. Defaults to 'preview'"
     required: false
     default: 'preview'
   commit_hash:
-    description: "Optional commit hash to filter deploys on. Useful when the same branch can have multiple deploys."
+    description: "Optional commit hash to filter deployments on. Useful when the same branch can have multiple deploys."
     required: false
 name: Cloudflare Preview URL
 outputs:
