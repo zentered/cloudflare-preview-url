@@ -255,9 +255,22 @@ test('getDeploymentUrl() should fail if there are no matching builds', async () 
         {
           name: 'zentered-co',
           url: 'test-123.cloudflare.app',
+          deployment_trigger: {
+            type: 'github:push',
+            metadata: {
+              branch: 'test-123',
+              commit_hash: '456'
+            }
+          },
           meta: {
             githubCommitRef: 'does-not-exist',
             githubCommitRepo: 'zentered'
+          },
+          source: {
+            type: 'github',
+            config: {
+              repo_name: 'website'
+            }
           }
         }
       ]
@@ -274,5 +287,5 @@ test('getDeploymentUrl() should fail if there are no matching builds', async () 
       'preview',
       null
     )
-  ).rejects.toThrow()
+  ).rejects.toThrow('no matching builds found')
 })
