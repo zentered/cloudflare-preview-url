@@ -38,7 +38,8 @@ export default async function getDeploymentUrl(
     .filter(
       (d) =>
         commitHash == null ||
-        d.deployment_trigger.metadata?.commit_hash === commitHash
+        (d.deployment_trigger.metadata != null &&
+          d.deployment_trigger.metadata.commit_hash === commitHash)
     )
 
   core.info(`Found ${builds.length} matching builds`)
