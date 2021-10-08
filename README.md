@@ -62,10 +62,12 @@ In the repository, go to "Settings", then "Secrets" and add "CLOUDFLARE_API_TOKE
 
 ## Inputs
 
-| Name                    | Requirement | Description                                                        |
-| ----------------------- | ----------- | ------------------------------------------------------------------ |
-| `cloudflare_project_id` | required    | Cloudflare project id/name                                         |
-| `wait_until_ready`      | optional    | Wait until the Cloudflare deployment is ready, defaults to "false" |
+| Name                    | Requirement | Description                                                                                                                     |
+| ----------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `cloudflare_project_id` | required    | Cloudflare project id/name                                                                                                      |
+| `wait_until_ready`      | optional    | Wait until the Cloudflare deployment is ready, defaults to "false"                                                              |
+| `environment`           | optional    | Which Cloudflare deployment environments to allow. If set to null, doesn't filter deploys by environment. Defaults to "preview" |
+| `commit_hash`           | optional    | Optional commit hash to filter deployments on. Useful when the same branch can have multiple deploys.                           |
 
 ## Outputs
 
