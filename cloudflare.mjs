@@ -34,7 +34,13 @@ export default async function getDeploymentUrl(
   const builds = data.result
     .filter((d) => d.source.config.repo_name === repo)
     .filter((d) => d.deployment_trigger.metadata.branch === branch)
-    .filter((d) => environment == null || d.environment === environment)
+    .filter((d) => {
+      if (environment && environment.length > 0) {
+        return d.environment === environment
+      } else {
+        return true
+      }
+    })
     .filter(
       (d) =>
         commitHash == null ||
