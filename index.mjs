@@ -18,7 +18,8 @@ async function run() {
     const projectId = core.getInput('cloudflare_project_id')
     const waitForDeploymentReady = core.getInput('wait_until_ready')
     const environment = core.getInput('environment', { required: false })
-    const commitHash = core.getInput('commit_hash', { required: false })
+    const inputHash = core.getInput('commit_hash', { required: false })
+    const commitHash = inputHash === '' || inputHash === null ? null : inputHash
 
     core.info(
       `Retrieving deployment preview for ${githubRepo}/${githubBranch} ...`

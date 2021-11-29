@@ -37,13 +37,6 @@ export default async function getDeploymentUrl(
   core.debug(`Looking for matching deployments ${repo}/${branch}`)
 
   const builds = data.result
-    .map((d) => {
-      core.info('-- temporary debugging --')
-      core.info(
-        `sha: ${commitHash}, ${typeof commitHash} ${commitHash === null}`
-      )
-      return d
-    })
     .filter(
       (d) =>
         d && d.source && d.source.config && d.source.config.repo_name === repo
