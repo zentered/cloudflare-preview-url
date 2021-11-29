@@ -51,9 +51,37 @@ module.exports = /******/ (() => {
 
         core.info(`Found ${data.result.length} deployments`)
         core.debug(`Looking for matching deployments ${repo}/${branch}`)
+
         const builds = data.result
-          .filter((d) => d.source.config.repo_name === repo)
-          .filter((d) => d.deployment_trigger.metadata.branch === branch)
+          .map((d) => {
+            core.info('-- temporary debugging --')
+            core.info(
+              d.source.config.repo_name,
+              repo,
+              d.source.config.repo_name === repo
+            )
+            core.info(
+              d.deployment_trigger.metadata.branch,
+              branch,
+              d.deployment_trigger.metadata.branch === branch
+            )
+            core.info(environment, d.environment, d.environment === environment)
+            core.info(commitHash, d.deployment_trigger.metadata.commit_hash)
+            return d
+          })
+          .filter(
+            (d) =>
+              d &&
+              d.source &&
+              d.source.config &&
+              d.source.config.repo_name === repo
+          )
+          .filter(
+            (d) =>
+              d &&
+              d.deployment_trigger &&
+              d.deployment_trigger.metadata.branch === branch
+          )
           .filter((d) => {
             if (environment && environment.length > 0) {
               return d.environment === environment
