@@ -56,22 +56,7 @@ module.exports = /******/ (() => {
           .map((d) => {
             core.info('-- temporary debugging --')
             core.info(
-              `repo: ${d.source.config.repo_name}, ${repo}, ${
-                d.source.config.repo_name === repo
-              }`
-            )
-            core.info(
-              `branch: ${d.deployment_trigger.metadata.branch}, ${branch}, ${
-                d.deployment_trigger.metadata.branch === branch
-              }`
-            )
-            core.info(
-              `environment: ${environment}, ${d.environment}, ${
-                d.environment === environment
-              }`
-            )
-            core.info(
-              `sha: ${commitHash}, ${d.deployment_trigger.metadata.commit_hash}`
+              `sha: ${commitHash}, ${typeof commitHash} ${commitHash === null}`
             )
             return d
           })
