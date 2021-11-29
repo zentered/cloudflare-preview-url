@@ -13,7 +13,11 @@ export default async function getDeploymentUrl(
 ) {
   const apiUrl = `https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${projectId}/deployments`
 
-  core.info(`Fetching from: ${apiUrl}`)
+  if (commitHash) {
+    core.info(`Fetching ${commitHash} from: ${apiUrl}`)
+  } else {
+    core.info(`Fetching from: ${apiUrl}`)
+  }
 
   const { data } = await axios.get(apiUrl, {
     headers: {
@@ -43,8 +47,8 @@ export default async function getDeploymentUrl(
     })
     .filter(
       (d) =>
-        commitHash == null ||
-        (d.deployment_trigger.metadata != null &&
+        commitHash === null ||
+        (d.deployment_trigger.metadata !== null &&
           d.deployment_trigger.metadata.commit_hash === commitHash)
     )
 

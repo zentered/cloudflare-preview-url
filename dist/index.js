@@ -29,7 +29,11 @@ module.exports = /******/ (() => {
       ) {
         const apiUrl = `https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${projectId}/deployments`
 
-        core.info(`Fetching from: ${apiUrl}`)
+        if (commitHash) {
+          core.info(`Fetching ${commitHash} from: ${apiUrl}`)
+        } else {
+          core.info(`Fetching from: ${apiUrl}`)
+        }
 
         const { data } = await axios.get(apiUrl, {
           headers: {
@@ -59,8 +63,8 @@ module.exports = /******/ (() => {
           })
           .filter(
             (d) =>
-              commitHash == null ||
-              (d.deployment_trigger.metadata != null &&
+              commitHash === null ||
+              (d.deployment_trigger.metadata !== null &&
                 d.deployment_trigger.metadata.commit_hash === commitHash)
           )
 
