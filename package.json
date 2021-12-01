@@ -62,7 +62,7 @@
     "eslint-plugin-node": "^11.1.0",
     "husky": "^7.0.4",
     "jest": "^27.3.1",
-    "jest-config": "^27.3.1",
+    "jest-config": "^27.4.3",
     "pinst": "^2.1.6",
     "prettier": "^2.4.1",
     "webpack": "^5.64.2"
