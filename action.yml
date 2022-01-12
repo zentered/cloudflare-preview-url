@@ -17,6 +17,9 @@ inputs:
   commit_hash:
     description: "Optional commit hash to filter deployments on. Useful when the same branch can have multiple deploys."
     required: false
+  branch:
+    description: "Optional branch name to filter deployments on. Useful when the branch name is not available in the action context."
+    required: false
 name: Cloudflare Preview URL
 outputs:
   preview_url:

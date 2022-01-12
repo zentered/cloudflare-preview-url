@@ -3,13 +3,14 @@ import getDeploymentUrl from './cloudflare.mjs'
 import checkDeploymentStatus from './cloudflare-statuscheck.mjs'
 
 async function delay(ms) {
-  return await new Promise((resolve) => setTimeout(resolve, ms))
+  return await new Promise(resolve => setTimeout(resolve, ms))
 }
 
 async function run() {
   try {
     const cloudflareToken = process.env.CLOUDFLARE_API_TOKEN
-    const githubRef = process.env.GITHUB_REF
+    const githubRef =
+      core.getInput('branch', { required: false }) || process.env.GITHUB_REF
     const githubProject = process.env.GITHUB_REPOSITORY
     const githubBranch = githubRef.replace('refs/heads/', '')
     const githubRepo = githubProject.split('/')[1]
