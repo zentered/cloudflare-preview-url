@@ -3,7 +3,7 @@ import getDeploymentUrl from './cloudflare.mjs'
 import checkDeploymentStatus from './cloudflare-statuscheck.mjs'
 
 async function delay(ms) {
-  return await new Promise(resolve => setTimeout(resolve, ms))
+  return await new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 async function run() {
