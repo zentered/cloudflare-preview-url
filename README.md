@@ -57,7 +57,7 @@ timeout-minutes: 10
 
 In the repository, go to "Settings", then "Secrets" and add "CLOUDFLARE_API_TOKEN", the value you can retrieve on your [Cloudflare account](https://dash.cloudflare.com/profile/api-tokens). You also need to add:
 
-- `CLOUDFLARE_ACCOUNT_EMAIL` (your login email)
+- `CLOUDFLARE_ACCOUNT_EMAIL` (your login email, optional)
 - `CLOUDFLARE_ACCOUNT_ID` (from the URL: `https://dash.cloudflare.com/123abc....`)
 
 ## Inputs
