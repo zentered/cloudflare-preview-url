@@ -19,11 +19,17 @@ export default async function getDeploymentUrl(
     core.info(`Fetching from: ${apiUrl}`)
   }
 
+  const headers = accountEmail
+    ? {
+        'X-Auth-Key': token,
+        'X-Auth-Email': accountEmail
+      }
+    : {
+        Authorization: `Bearer ${token}`
+      }
+
   const { data } = await axios.get(apiUrl, {
-    headers: {
-      'X-Auth-Key': token,
-      'X-Auth-Email': accountEmail
-    },
+    headers,
     responseType: 'json',
     responseEncoding: 'utf8'
   })

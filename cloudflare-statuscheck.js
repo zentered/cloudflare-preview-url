@@ -10,11 +10,17 @@ export default async function waitForDeployment(
 ) {
   const apiUrl = `https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${projectId}/deployments`
 
+  const headers = accountEmail
+    ? {
+        'X-Auth-Key': token,
+        'X-Auth-Email': accountEmail
+      }
+    : {
+        Authorization: `Bearer ${token}`
+      }
+
   const { data } = await axios.get(apiUrl, {
-    headers: {
-      'X-Auth-Key': token,
-      'X-Auth-Email': accountEmail
-    },
+    headers,
     responseType: 'json',
     responseEncoding: 'utf8'
   })

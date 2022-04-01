@@ -2,6 +2,7 @@
   "name": "cloudflare-preview-url",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "GitHub Action to receive the deployment preview from Cloudflare",
   "keywords": [
     "cloudflare",
@@ -26,7 +27,7 @@
   "scripts": {
     "build": "npm run lint && npm run test && npm run prepare",
     "lint": "eslint .",
-    "prepare": "ncc build index.mjs -o dist --source-map --license licenses.txt",
+    "prepare": "ncc build index.js -o dist --source-map --license licenses.txt",
     "test": "jest",
     "postinstall": "husky install",
     "prepublishOnly": "pinst --disable",
@@ -38,34 +39,34 @@
     ]
   },
   "lint-staged": {
-    "*.{mjs,js,json,md}": [
+    "*.{js,json,md}": [
       "prettier --write"
     ],
-    "*.{mjs,js}": [
+    "*.js": [
       "eslint --cache --fix"
     ]
   },
   "dependencies": {
     "@actions/core": "^1.6.0",
-    "axios": "^0.24.0"
+    "axios": "^0.26.1"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.16.4",
+    "@babel/preset-env": "^7.16.11",
     "@commitlint/config-conventional": "^15.0.0",
-    "@vercel/ncc": "^0.27.0",
-    "babel-jest": "^27.3.1",
+    "@vercel/ncc": "^0.33.3",
+    "babel-jest": "^27.5.1",
     "commitlint": "^15.0.0",
     "dotenv": "^10.0.0",
-    "eslint": "^8.3.0",
-    "eslint-plugin-jest": "^25.2.4",
+    "eslint": "^8.12.0",
+    "eslint-plugin-jest": "^25.7.0",
     "eslint-plugin-json": "^3.1.0",
     "eslint-plugin-node": "^11.1.0",
     "husky": "^7.0.4",
-    "jest": "^27.3.1",
-    "jest-config": "^27.3.1",
+    "jest": "^27.5.1",
+    "jest-config": "^27.5.1",
     "pinst": "^2.1.6",
-    "prettier": "^2.4.1",
-    "webpack": "^5.64.2"
+    "prettier": "^2.6.1",
+    "webpack": "^5.71.0"
   },
   "release": {
     "branches": [

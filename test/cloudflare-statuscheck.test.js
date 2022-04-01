@@ -1,5 +1,5 @@
 /* eslint-disable node/no-unsupported-features/es-syntax */
-import checkDeploymentStatus from '../cloudflare-statuscheck.mjs'
+import checkDeploymentStatus from '../cloudflare-statuscheck.js'
 import axios from 'axios'
 
 jest.mock('@actions/core', () => {
