@@ -1,5 +1,5 @@
 /* eslint-disable node/no-unsupported-features/es-syntax */
-import getDeploymentUrl from '../cloudflare.mjs'
+import getDeploymentUrl from '../cloudflare.js'
 import axios from 'axios'
 
 jest.mock('@actions/core', () => {

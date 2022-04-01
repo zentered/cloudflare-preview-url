@@ -1,6 +1,6 @@
 import core from '@actions/core'
-import getDeploymentUrl from './cloudflare.mjs'
-import checkDeploymentStatus from './cloudflare-statuscheck.mjs'
+import getDeploymentUrl from './cloudflare.js'
+import checkDeploymentStatus from './cloudflare-statuscheck.js'
 
 async function delay(ms) {
   return await new Promise((resolve) => setTimeout(resolve, ms))
