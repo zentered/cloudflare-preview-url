@@ -5,7 +5,7 @@
 ![Semantic Release](https://github.com/govolition/storefront-api/workflows/Semantic%20Release/badge.svg)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
-Retrieve the preview URL from the Cloudflare API, filtered by the repo and branch. The URL can then be used for further end-to-end tests, link checks and other PR integrations/actions.
+Retrieve the preview URL from the Cloudflare API, filtered by the repository and branch. The URL can then be used for further end-to-end tests, link checks and other PR integrations/actions.
 
 ## Table of Contents
 
@@ -68,7 +68,7 @@ In the repository, go to "Settings", then "Secrets" and add "CLOUDFLARE_API_TOKE
 | `wait_until_ready`      | optional    | Wait until the Cloudflare deployment is ready, defaults to "false"                                                              |
 | `environment`           | optional    | Which Cloudflare deployment environments to allow. If set to null, doesn't filter deploys by environment. Defaults to "preview" |
 | `commit_hash`           | optional    | Optional commit hash to filter deployments on. Useful when the same branch can have multiple deploys.                           |
-| `branch`           | optional    | Optional branch name to filter deployments on. Useful when the branch name is not available in the action context.                           |
+| `branch`                | optional    | Optional branch name to filter deployments on. Useful when the branch name is not available in the action context.              |
 
 ## Outputs
 
