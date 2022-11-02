@@ -2,7 +2,7 @@
 
 ![Test](https://github.com/zentered/cloudflare-preview-url/workflows/Test/badge.svg)
 ![Release](https://github.com/zentered/cloudflare-preview-url/workflows/Publish/badge.svg)
-![Semantic Release](https://github.com/govolition/storefront-api/workflows/Semantic%20Release/badge.svg)
+[![semantic-release: conventional](https://img.shields.io/badge/semantic--release-conventional-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
 Retrieve the preview URL from the Cloudflare API, filtered by the repository and branch. The URL can then be used for further end-to-end tests, link checks and other PR integrations/actions.
