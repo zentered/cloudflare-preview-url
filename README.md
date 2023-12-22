@@ -70,6 +70,9 @@ need to add:
 - `CLOUDFLARE_ACCOUNT_ID` (from the URL:
   `https://dash.cloudflare.com/123abc....`)
 
+When providing an account email address, the token will not be used as `Bearer`
+token.
+
 ## Inputs
 
 | Name                    | Requirement | Description                                                                                                                     |
