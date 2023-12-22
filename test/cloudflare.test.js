@@ -1,62 +1,27 @@
-/* eslint-disable node/no-unsupported-features/es-syntax */
-import getDeploymentUrl from '../cloudflare.js'
-import axios from 'axios'
+'use strict'
 
-jest.mock('@actions/core', () => {
-  return {
-    info: jest.fn(),
-    debug: jest.fn(),
-    error: jest.fn()
-  }
-})
-jest.mock('axios')
+import assert from 'node:assert'
+import { mock, test } from 'node:test'
+// eslint-disable-next-line node/no-unpublished-import
+import esmock from 'esmock'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+
+async function readFixture(name) {
+  const path = join('test', 'fixtures', `${name}.json`)
+  const file = readFileSync(path, 'utf8')
+  const data = JSON.parse(file)
+  return Promise.resolve(data)
+}
 
 test('getDeploymentUrl() should return a Cloudflare build', async () => {
-  axios.get.mockResolvedValueOnce({
-    data: {
-      result: [
-        {
-          environment: 'production',
-          url: 'https://main.cf-project.pages.dev',
-          deployment_trigger: {
-            type: 'github:push',
-            metadata: {
-              branch: 'main'
-            }
-          },
-          latest_stage: {
-            name: 'deploy',
-            status: 'success'
-          },
-          source: {
-            type: 'github',
-            config: {
-              repo_name: 'website',
-              production_branch: 'main'
-            }
-          }
-        },
-        {
-          environment: 'preview',
-          url: 'https://123.cf-project.pages.dev',
-          deployment_trigger: {
-            type: 'github:push',
-            metadata: {
-              branch: 'fix/test-1'
-            }
-          },
-          latest_stage: {
-            name: 'deploy',
-            status: 'success'
-          },
-          source: {
-            type: 'github',
-            config: {
-              repo_name: 'website'
-            }
-          }
-        }
-      ]
+  const mockFetch = mock.fn(async () => readFixture('success'))
+  const getDeploymentUrl = await esmock('../src/cloudflare.js', {
+    import: {
+      fetch: async () => ({
+        status: 200,
+        json: mockFetch
+      })
     }
   })
 
@@ -71,80 +36,61 @@ test('getDeploymentUrl() should return a Cloudflare build', async () => {
     null
   )
 
-  expect(url).toEqual('https://123.cf-project.pages.dev')
+  assert.equal(url, 'https://123.cf-project.pages.dev')
 })
 
 test('getDeploymentUrl() should fail if there are no deployments', async () => {
-  const data = {
-    data: {
-      result: []
-    }
-  }
-  axios.get.mockResolvedValueOnce(data)
+  const mockFetch = mock.fn(async () => readFixture('empty'))
+  const mockSetFailed = mock.fn()
 
-  await expect(
-    getDeploymentUrl(
-      '123xyz',
-      'zentered',
-      'user@example.com',
-      'cf-project',
-      'website',
-      'fix/test-1',
-      'preview',
-      null
-    )
-  ).rejects.toThrow()
+  const getDeploymentUrl = await esmock(
+    '../src/cloudflare.js',
+    {
+      '@actions/core': {
+        info: mock.fn(),
+        error: mock.fn(),
+        setFailed: mockSetFailed
+      }
+    },
+    {
+      import: {
+        fetch: async () => ({
+          status: 200,
+          json: mockFetch
+        })
+      }
+    }
+  )
+
+  const fn = getDeploymentUrl(
+    '123xyz',
+    'zentered',
+    'user@example.com',
+    'cf-project',
+    'website',
+    'fix/test-1',
+    'preview',
+    null
+  )
+
+  await assert.rejects(fn, {
+    name: 'Error',
+    message: 'no deployments found'
+  })
+
+  assert.equal(mockSetFailed.mock.calls.length, 1)
 })
 
 test('getDeploymentUrl() should check all environments when null', async () => {
-  const data = {
-    data: {
-      result: [
-        {
-          environment: 'production',
-          url: 'https://main.cf-project.pages.dev',
-          deployment_trigger: {
-            type: 'github:push',
-            metadata: {
-              branch: 'main'
-            }
-          },
-          latest_stage: {
-            name: 'deploy',
-            status: 'success'
-          },
-          source: {
-            type: 'github',
-            config: {
-              repo_name: 'website',
-              production_branch: 'main'
-            }
-          }
-        },
-        {
-          environment: 'preview',
-          url: 'https://123.cf-project.pages.dev',
-          deployment_trigger: {
-            type: 'github:push',
-            metadata: {
-              branch: 'fix/test-1'
-            }
-          },
-          latest_stage: {
-            name: 'deploy',
-            status: 'success'
-          },
-          source: {
-            type: 'github',
-            config: {
-              repo_name: 'website'
-            }
-          }
-        }
-      ]
+  const mockFetch = mock.fn(async () => readFixture('check-environments'))
+  const getDeploymentUrl = await esmock('../src/cloudflare.js', {
+    import: {
+      fetch: async () => ({
+        status: 200,
+        json: mockFetch
+      })
     }
-  }
-  axios.get.mockResolvedValueOnce(data)
+  })
 
   const { url } = await getDeploymentUrl(
     '123xyz',
@@ -157,82 +103,19 @@ test('getDeploymentUrl() should check all environments when null', async () => {
     null
   )
 
-  expect(url).toEqual('https://main.cf-project.pages.dev')
+  assert.equal(url, 'https://main.cf-project.pages.dev')
 })
 
 test('getDeploymentUrl() should filter by commitHash when provided', async () => {
-  const data = {
-    data: {
-      result: [
-        {
-          environment: 'production',
-          url: 'https://main-123.cf-project.pages.dev',
-          deployment_trigger: {
-            type: 'github:push',
-            metadata: {
-              branch: 'main',
-              commit_hash: '123'
-            }
-          },
-          latest_stage: {
-            name: 'deploy',
-            status: 'success'
-          },
-          source: {
-            type: 'github',
-            config: {
-              repo_name: 'website',
-              production_branch: 'main'
-            }
-          }
-        },
-        {
-          environment: 'production',
-          url: 'https://main-456.cf-project.pages.dev',
-          deployment_trigger: {
-            type: 'github:push',
-            metadata: {
-              branch: 'main',
-              commit_hash: '456'
-            }
-          },
-          latest_stage: {
-            name: 'deploy',
-            status: 'success'
-          },
-          source: {
-            type: 'github',
-            config: {
-              repo_name: 'website',
-              production_branch: 'main'
-            }
-          }
-        },
-        {
-          environment: 'preview',
-          url: 'https://789.cf-project.pages.dev',
-          deployment_trigger: {
-            type: 'github:push',
-            metadata: {
-              branch: 'fix/test-1',
-              commit_hash: '789'
-            }
-          },
-          latest_stage: {
-            name: 'deploy',
-            status: 'success'
-          },
-          source: {
-            type: 'github',
-            config: {
-              repo_name: 'website'
-            }
-          }
-        }
-      ]
+  const mockFetch = mock.fn(async () => readFixture('filter-by-commithash'))
+  const getDeploymentUrl = await esmock('../src/cloudflare.js', {
+    import: {
+      fetch: async () => ({
+        status: 200,
+        json: mockFetch
+      })
     }
-  }
-  axios.get.mockResolvedValueOnce(data)
+  })
 
   const { url } = await getDeploymentUrl(
     '123xyz',
@@ -245,47 +128,44 @@ test('getDeploymentUrl() should filter by commitHash when provided', async () =>
     '456'
   )
 
-  expect(url).toEqual('https://main-456.cf-project.pages.dev')
+  assert.equal(url, 'https://main-456.cf-project.pages.dev')
 })
 
 test('getDeploymentUrl() should fail if there are no matching builds', async () => {
-  const data = {
-    data: {
-      result: [
-        {
-          name: 'zentered-co',
-          url: 'test-123.cloudflare.app',
-          deployment_trigger: {
-            type: 'github:push',
-            metadata: {
-              branch: 'test-123',
-              commit_hash: '456'
-            }
-          },
-          meta: {
-            githubCommitRef: 'does-not-exist',
-            githubCommitRepo: 'zentered'
-          },
-          source: {
-            type: 'github',
-            config: {
-              repo_name: 'website'
-            }
-          }
-        }
-      ]
+  const mockFetch = mock.fn(async () => readFixture('filter-by-commithash'))
+  const mockSetFailed = mock.fn()
+  const getDeploymentUrl = await esmock(
+    '../src/cloudflare.js',
+    {
+      '@actions/core': {
+        info: mock.fn(),
+        error: mock.fn(),
+        setFailed: mockSetFailed
+      }
+    },
+    {
+      import: {
+        fetch: async () => ({
+          status: 200,
+          json: mockFetch
+        })
+      }
     }
-  }
-  axios.get.mockResolvedValueOnce(data)
+  )
 
-  await expect(
-    getDeploymentUrl(
-      '123xyz',
-      'zentered',
-      'fix/huge-bug',
-      'zentered.co',
-      'preview',
-      null
-    )
-  ).rejects.toThrow('no matching builds found')
+  const fn = getDeploymentUrl(
+    '123xyz',
+    'zentered',
+    'fix/huge-bug',
+    'zentered.co',
+    'preview',
+    null
+  )
+
+  await assert.rejects(fn, {
+    name: 'Error',
+    message: 'no matching builds found'
+  })
+
+  assert.equal(mockSetFailed.mock.calls.length, 1)
 })

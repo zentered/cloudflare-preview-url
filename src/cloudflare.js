@@ -1,5 +1,6 @@
+'use strict'
+
 import core from '@actions/core'
-import axios from 'axios'
 
 export default async function getDeploymentUrl(
   token,
@@ -28,14 +29,14 @@ export default async function getDeploymentUrl(
         Authorization: `Bearer ${token}`
       }
 
-  const { data } = await axios.get(apiUrl, {
-    headers,
-    responseType: 'json',
-    responseEncoding: 'utf8'
+  const res = await fetch(apiUrl, {
+    headers
   })
+  const { data } = await res.json()
 
   if (!data || !data.result || data.result.length <= 0) {
     core.error(JSON.stringify(data))
+    core.setFailed('no deployments found')
     throw new Error('no deployments found')
   }
 
@@ -70,6 +71,10 @@ export default async function getDeploymentUrl(
   core.info(`Found ${builds.length} matching builds`)
   if (!builds || builds.length <= 0) {
     core.error(JSON.stringify(builds))
+    core.info(
+      'If you run this as a pull request check, make sure to include the branch in the trigger (see #Usage in README.md)'
+    )
+    core.setFailed('no matching builds found')
     throw new Error('no matching builds found')
   }
 

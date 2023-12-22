@@ -1,9 +1,0 @@
-{
-  "setupFiles": ["dotenv/config"],
-  "collectCoverage": true,
-  "moduleFileExtensions": ["js"],
-  "transform": {
-    "^.+\\.js$": "babel-jest"
-  },
-  "testRegex": "((\\.|/*.)(test))\\.js?$"
-}
