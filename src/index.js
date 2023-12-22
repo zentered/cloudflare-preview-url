@@ -1,3 +1,5 @@
+'use strict'
+
 import core from '@actions/core'
 import getDeploymentUrl from './cloudflare.js'
 import checkDeploymentStatus from './cloudflare-statuscheck.js'

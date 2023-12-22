@@ -9,7 +9,7 @@ inputs:
   wait_until_ready:
     description: 'Wait for deployment to be ready'
     required: false
-    default: false
+    default: ''
   environment:
     description: "Which Cloudflare deployment environments to allow. If set to null, doesn't filter deploys by environment. Defaults to 'preview'"
     required: false
@@ -26,4 +26,4 @@ outputs:
     description: "A string with the unique URL of the deployment. If it hasn't finished uploading (is incomplete), the value will be null."
 runs:
   main: dist/index.js
-  using: node16
+  using: node20

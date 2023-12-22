@@ -1,5 +1,6 @@
+'use strict'
+
 import core from '@actions/core'
-import axios from 'axios'
 
 export default async function waitForDeployment(
   token,
@@ -19,12 +20,10 @@ export default async function waitForDeployment(
         Authorization: `Bearer ${token}`
       }
 
-  const { data } = await axios.get(apiUrl, {
-    headers,
-    responseType: 'json',
-    responseEncoding: 'utf8'
+  const res = await fetch(apiUrl, {
+    headers
   })
-
+  const { data } = await res.json()
   const build = data.result.filter((d) => d.id === deploymentId)[0]
 
   core.info(

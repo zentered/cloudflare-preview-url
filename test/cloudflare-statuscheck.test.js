@@ -1,47 +1,72 @@
-/* eslint-disable node/no-unsupported-features/es-syntax */
-import checkDeploymentStatus from '../cloudflare-statuscheck.js'
-import axios from 'axios'
+'use strict'
 
-jest.mock('@actions/core', () => {
-  return {
-    info: jest.fn(),
-    setFailed: jest.fn()
+import assert from 'node:assert'
+import { mock, test } from 'node:test'
+// eslint-disable-next-line node/no-unpublished-import
+import esmock from 'esmock'
+
+const payload = {
+  data: {
+    result: [
+      {
+        id: '123abc',
+        environment: 'preview',
+        latest_stage: {
+          name: 'deploy',
+          status: 'initialized'
+        }
+      }
+    ]
   }
+}
+
+test('waitForDeployment() should wait until a deployment is successful - wait', async () => {
+  const mockFetch = mock.fn(async () => {
+    return payload
+  })
+
+  const checkDeploymentStatus = await esmock(
+    '../src/cloudflare-statuscheck.js',
+    {
+      import: {
+        fetch: async () => ({
+          status: 200,
+          json: mockFetch
+        })
+      }
+    }
+  )
+
+  const actual = await checkDeploymentStatus(
+    '123xyz',
+    'zentered',
+    'user@example.com',
+    'cf-project',
+    '123abc'
+  )
+
+  assert.equal(actual, false)
 })
-jest.mock('axios')
 
-test('waitForDeployment() should wait until a deployment is successful', async () => {
-  axios.get.mockResolvedValueOnce({
-    data: {
-      result: [
-        {
-          id: '123abc',
-          environment: 'preview',
-          latest_stage: {
-            name: 'deploy',
-            status: 'initialized'
-          }
-        }
-      ]
-    }
+test('waitForDeployment() should wait until a deployment is successful - done', async () => {
+  const mockFetch = mock.fn(async () => {
+    payload.data.result[0].latest_stage.status = 'success'
+    return payload
   })
 
-  axios.get.mockResolvedValueOnce({
-    data: {
-      result: [
-        {
-          id: '123abc',
-          environment: 'preview',
-          latest_stage: {
-            name: 'deploy',
-            status: 'success'
-          }
-        }
-      ]
+  const checkDeploymentStatus = await esmock(
+    '../src/cloudflare-statuscheck.js',
+    {
+      import: {
+        fetch: async () => ({
+          status: 200,
+          json: mockFetch
+        })
+      }
     }
-  })
+  )
 
-  const firstCheck = await checkDeploymentStatus(
+  const actual = await checkDeploymentStatus(
     '123xyz',
     'zentered',
     'user@example.com',
@@ -49,40 +74,47 @@ test('waitForDeployment() should wait until a deployment is successful', async (
     '123abc'
   )
 
-  const secondCheck = await checkDeploymentStatus(
-    '123xyz',
-    'zentered',
-    'user@example.com',
-    'cf-project',
-    '123abc'
-  )
-  expect(firstCheck).toEqual(false)
-  expect(secondCheck).toEqual(true)
+  assert.equal(actual, true)
 })
 
 test('waitForDeployment() should abort when a build has failed', async () => {
-  axios.get.mockResolvedValueOnce({
-    data: {
-      result: [
-        {
-          id: '123abc',
-          environment: 'preview',
-          latest_stage: {
-            name: 'build',
-            status: 'failure'
-          }
-        }
-      ]
+  const mockFetch = mock.fn(async () => {
+    payload.data.result[0].latest_stage.status = 'failure'
+    return payload
+  })
+  const mockSetFailed = mock.fn()
+
+  const checkDeploymentStatus = await esmock(
+    '../src/cloudflare-statuscheck.js',
+    {
+      '@actions/core': {
+        info: mock.fn(),
+        error: mock.fn(),
+        setFailed: mockSetFailed
+      }
+    },
+    {
+      import: {
+        fetch: async () => ({
+          status: 200,
+          json: mockFetch
+        })
+      }
     }
+  )
+
+  const fn = checkDeploymentStatus(
+    '123xyz',
+    'zentered',
+    'user@example.com',
+    'cf-project',
+    '123abc'
+  )
+
+  await assert.rejects(fn, {
+    name: 'Error',
+    message: 'Build failed. Abort.'
   })
 
-  await expect(
-    checkDeploymentStatus(
-      '123xyz',
-      'zentered',
-      'user@example.com',
-      'cf-project',
-      '123abc'
-    )
-  ).rejects.toThrow('Build failed. Abort.')
+  assert.equal(mockSetFailed.mock.calls.length, 1)
 })
