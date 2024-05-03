@@ -24,7 +24,7 @@ jobs:
           node-version: 18
       - run: npm ci
       - name: Lint Code Base
-        uses: github/super-linter@v5.0.0
+        uses: github/super-linter@v6
         env:
           LINTER_RULES_PATH: /
           FILTER_REGEX_EXCLUDE: (.*dist\/.*)|(.husky\/.*)|(.test\/.*)
