@@ -25,8 +25,4 @@ jobs:
       - run: npm ci
       - name: Lint Code Base
         uses: github/super-linter@v6
-        env:
-          JAVASCRIPT_ES_CONFIG_FILE: eslint.config.js
-          VALIDATE_JAVASCRIPT_STANDARD: false
-          IGNORE_GENERATED_FILES: true
       - run: npm test
