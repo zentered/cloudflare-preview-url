@@ -28,6 +28,5 @@ jobs:
         env:
           JAVASCRIPT_ES_CONFIG_FILE: eslint.config.js
           VALIDATE_JAVASCRIPT_STANDARD: false
-          DEFAULT_BRANCH: main
           IGNORE_GENERATED_FILES: true
       - run: npm test
