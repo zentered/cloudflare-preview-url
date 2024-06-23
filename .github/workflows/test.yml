@@ -26,8 +26,7 @@ jobs:
       - name: Lint Code Base
         uses: github/super-linter@v6
         env:
-          FILTER_REGEX_EXCLUDE: (.*dist\/.*)|(.husky\/.*)|(.test\/.*)
-          VALIDATE_ALL_CODEBASE: true
+          JAVASCRIPT_ES_CONFIG_FILE: eslint.config.js
           VALIDATE_JAVASCRIPT_STANDARD: false
           DEFAULT_BRANCH: main
           IGNORE_GENERATED_FILES: true
