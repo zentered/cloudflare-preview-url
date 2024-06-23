@@ -1304,9 +1304,8 @@ import { createRequire as __WEBPACK_EXTERNAL_createRequire } from 'module'
         if (!options.headers) {
           throw Error('The request has no headers')
         }
-        options.headers['Authorization'] = `Basic ${Buffer.from(
-          `${this.username}:${this.password}`
-        ).toString('base64')}`
+        options.headers['Authorization'] =
+          `Basic ${Buffer.from(`${this.username}:${this.password}`).toString('base64')}`
       }
       // This handler cannot handle 401
       canHandleAuthentication() {
@@ -1352,9 +1351,8 @@ import { createRequire as __WEBPACK_EXTERNAL_createRequire } from 'module'
         if (!options.headers) {
           throw Error('The request has no headers')
         }
-        options.headers['Authorization'] = `Basic ${Buffer.from(
-          `PAT:${this.token}`
-        ).toString('base64')}`
+        options.headers['Authorization'] =
+          `Basic ${Buffer.from(`PAT:${this.token}`).toString('base64')}`
       }
       // This handler cannot handle 401
       canHandleAuthentication() {
@@ -4311,9 +4309,7 @@ import { createRequire as __WEBPACK_EXTERNAL_createRequire } from 'module'
         process.nextTick(
           callback,
           new ResponseStatusCodeError(
-            `Response status code ${statusCode}${
-              statusMessage ? `: ${statusMessage}` : ''
-            }`,
+            `Response status code ${statusCode}${statusMessage ? `: ${statusMessage}` : ''}`,
             statusCode,
             headers
           )
@@ -4327,9 +4323,7 @@ import { createRequire as __WEBPACK_EXTERNAL_createRequire } from 'module'
           process.nextTick(
             callback,
             new ResponseStatusCodeError(
-              `Response status code ${statusCode}${
-                statusMessage ? `: ${statusMessage}` : ''
-              }`,
+              `Response status code ${statusCode}${statusMessage ? `: ${statusMessage}` : ''}`,
               statusCode,
               headers,
               payload
@@ -4343,9 +4337,7 @@ import { createRequire as __WEBPACK_EXTERNAL_createRequire } from 'module'
           process.nextTick(
             callback,
             new ResponseStatusCodeError(
-              `Response status code ${statusCode}${
-                statusMessage ? `: ${statusMessage}` : ''
-              }`,
+              `Response status code ${statusCode}${statusMessage ? `: ${statusMessage}` : ''}`,
               statusCode,
               headers,
               payload
@@ -4360,9 +4352,7 @@ import { createRequire as __WEBPACK_EXTERNAL_createRequire } from 'module'
       process.nextTick(
         callback,
         new ResponseStatusCodeError(
-          `Response status code ${statusCode}${
-            statusMessage ? `: ${statusMessage}` : ''
-          }`,
+          `Response status code ${statusCode}${statusMessage ? `: ${statusMessage}` : ''}`,
           statusCode,
           headers
         )
@@ -6073,9 +6063,8 @@ import { createRequire as __WEBPACK_EXTERNAL_createRequire } from 'module'
         this[kLocalAddress] = localAddress != null ? localAddress : null
         this[kResuming] = 0 // 0, idle, 1, scheduled, 2 resuming
         this[kNeedDrain] = 0 // 0, idle, 1, scheduled, 2 resuming
-        this[kHostHeader] = `host: ${this[kUrl].hostname}${
-          this[kUrl].port ? `:${this[kUrl].port}` : ''
-        }\r\n`
+        this[kHostHeader] =
+          `host: ${this[kUrl].hostname}${this[kUrl].port ? `:${this[kUrl].port}` : ''}\r\n`
         this[kBodyTimeout] = bodyTimeout != null ? bodyTimeout : 300e3
         this[kHeadersTimeout] = headersTimeout != null ? headersTimeout : 300e3
         this[kStrictContentLength] =
@@ -6096,9 +6085,8 @@ import { createRequire as __WEBPACK_EXTERNAL_createRequire } from 'module'
               maxConcurrentStreams:
                 maxConcurrentStreams != null ? maxConcurrentStreams : 100 // Max peerConcurrentStreams for a Node h2 server
             }
-        this[kHost] = `${this[kUrl].hostname}${
-          this[kUrl].port ? `:${this[kUrl].port}` : ''
-        }`
+        this[kHost] =
+          `${this[kUrl].hostname}${this[kUrl].port ? `:${this[kUrl].port}` : ''}`
 
         // kQueue is built up of 3 sections separated by
         // the kRunningIdx and kPendingIdx indices.
@@ -10236,11 +10224,8 @@ import { createRequire as __WEBPACK_EXTERNAL_createRequire } from 'module'
           for (let i = 0; i < val.length; i++) {
             if (skipAppend) {
               if (request.headers[key])
-                request.headers[key] += `,${processHeaderValue(
-                  key,
-                  val[i],
-                  skipAppend
-                )}`
+                request.headers[key] +=
+                  `,${processHeaderValue(key, val[i], skipAppend)}`
               else
                 request.headers[key] = processHeaderValue(
                   key,
@@ -11239,9 +11224,7 @@ import { createRequire as __WEBPACK_EXTERNAL_createRequire } from 'module'
           )
         )
       } else if (util.isFormDataLike(object)) {
-        const boundary = `----formdata-undici-0${`${Math.floor(
-          Math.random() * 1e11
-        )}`.padStart(11, '0')}`
+        const boundary = `----formdata-undici-0${`${Math.floor(Math.random() * 1e11)}`.padStart(11, '0')}`
         const prefix = `--${boundary}\r\nContent-Disposition: form-data`
 
         /*! formdata-polyfill. MIT License. Jimmy Wärting <https://jimmy.warting.se/opensource> */
@@ -19209,9 +19192,7 @@ import { createRequire as __WEBPACK_EXTERNAL_createRequire } from 'module'
             ) {
               throw webidl.errors.exception({
                 header: 'Dictionary',
-                message: `${value} is not an accepted type. Expected one of ${options.allowedValues.join(
-                  ', '
-                )}.`
+                message: `${value} is not an accepted type. Expected one of ${options.allowedValues.join(', ')}.`
               })
             }
 
@@ -19268,9 +19249,7 @@ import { createRequire as __WEBPACK_EXTERNAL_createRequire } from 'module'
         if (x.charCodeAt(index) > 255) {
           throw new TypeError(
             'Cannot convert argument to a ByteString because the character at ' +
-              `index ${index} has a value of ${x.charCodeAt(
-                index
-              )} which is greater than 255.`
+              `index ${index} has a value of ${x.charCodeAt(index)} which is greater than 255.`
           )
         }
       }
@@ -22544,11 +22523,7 @@ ${pendingInterceptorsFormatter.format(pending)}
       )
       if (matchedMockDispatches.length === 0) {
         throw new MockNotMatchedError(
-          `Mock dispatch not matched for headers '${
-            typeof key.headers === 'object'
-              ? JSON.stringify(key.headers)
-              : key.headers
-          }'`
+          `Mock dispatch not matched for headers '${typeof key.headers === 'object' ? JSON.stringify(key.headers) : key.headers}'`
         )
       }
 
@@ -23438,9 +23413,8 @@ ${pendingInterceptorsFormatter.format(pending)}
         } else if (opts.token) {
           this[kProxyHeaders]['proxy-authorization'] = opts.token
         } else if (username && password) {
-          this[kProxyHeaders]['proxy-authorization'] = `Basic ${Buffer.from(
-            `${decodeURIComponent(username)}:${decodeURIComponent(password)}`
-          ).toString('base64')}`
+          this[kProxyHeaders]['proxy-authorization'] =
+            `Basic ${Buffer.from(`${decodeURIComponent(username)}:${decodeURIComponent(password)}`).toString('base64')}`
         }
 
         const connect = buildConnector({ ...opts.proxyTls })
@@ -28815,18 +28789,24 @@ var __webpack_exports__ = {}
     const res = await fetch(apiUrl, {
       headers
     })
-    const { data } = await res.json()
+    const { error, result } = await res.json()
 
-    if (!data || !data.result || data.result.length <= 0) {
-      core.error(JSON.stringify(data))
+    if (error) {
+      core.error(error)
+      core.setFailed('error fetching deployments')
+      throw new Error('error fetching deployments')
+    }
+
+    if (!result || result.length <= 0) {
+      core.error(JSON.stringify(result))
       core.setFailed('no deployments found')
       throw new Error('no deployments found')
     }
 
-    core.info(`Found ${data.result.length} deployments`)
+    core.info(`Found ${result.length} deployments`)
     core.debug(`Looking for matching deployments ${repo}/${branch}`)
 
-    const builds = data.result
+    const builds = result
       .filter(
         (d) =>
           d && d.source && d.source.config && d.source.config.repo_name === repo
@@ -28846,7 +28826,7 @@ var __webpack_exports__ = {}
       })
       .filter(
         (d) =>
-          commitHash === null ||
+          !commitHash ||
           (d.deployment_trigger.metadata !== null &&
             d.deployment_trigger.metadata.commit_hash === commitHash)
       )

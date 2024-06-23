@@ -2,7 +2,6 @@
 
 import assert from 'node:assert'
 import { mock, test } from 'node:test'
-// eslint-disable-next-line node/no-unpublished-import
 import esmock from 'esmock'
 
 const payload = {
