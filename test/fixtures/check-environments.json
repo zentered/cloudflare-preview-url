@@ -1,47 +1,45 @@
 {
-  "data": {
-    "result": [
-      {
-        "environment": "production",
-        "url": "https://main.cf-project.pages.dev",
-        "deployment_trigger": {
-          "type": "github:push",
-          "metadata": {
-            "branch": "main"
-          }
-        },
-        "latest_stage": {
-          "name": "deploy",
-          "status": "success"
-        },
-        "source": {
-          "type": "github",
-          "config": {
-            "repo_name": "website",
-            "production_branch": "main"
-          }
+  "result": [
+    {
+      "environment": "production",
+      "url": "https://main.cf-project.pages.dev",
+      "deployment_trigger": {
+        "type": "github:push",
+        "metadata": {
+          "branch": "main"
         }
       },
-      {
-        "environment": "preview",
-        "url": "https://123.cf-project.pages.dev",
-        "deployment_trigger": {
-          "type": "github:push",
-          "metadata": {
-            "branch": "fix/test-1"
-          }
-        },
-        "latest_stage": {
-          "name": "deploy",
-          "status": "success"
-        },
-        "source": {
-          "type": "github",
-          "config": {
-            "repo_name": "website"
-          }
+      "latest_stage": {
+        "name": "deploy",
+        "status": "success"
+      },
+      "source": {
+        "type": "github",
+        "config": {
+          "repo_name": "website",
+          "production_branch": "main"
         }
       }
-    ]
-  }
+    },
+    {
+      "environment": "preview",
+      "url": "https://123.cf-project.pages.dev",
+      "deployment_trigger": {
+        "type": "github:push",
+        "metadata": {
+          "branch": "fix/test-1"
+        }
+      },
+      "latest_stage": {
+        "name": "deploy",
+        "status": "success"
+      },
+      "source": {
+        "type": "github",
+        "config": {
+          "repo_name": "website"
+        }
+      }
+    }
+  ]
 }

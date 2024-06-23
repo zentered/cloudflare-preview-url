@@ -32,18 +32,24 @@ export default async function getDeploymentUrl(
   const res = await fetch(apiUrl, {
     headers
   })
-  const { data } = await res.json()
+  const { error, result } = await res.json()
 
-  if (!data || !data.result || data.result.length <= 0) {
-    core.error(JSON.stringify(data))
+  if (error) {
+    core.error(error)
+    core.setFailed('error fetching deployments')
+    throw new Error('error fetching deployments')
+  }
+
+  if (!result || result.length <= 0) {
+    core.error(JSON.stringify(result))
     core.setFailed('no deployments found')
     throw new Error('no deployments found')
   }
 
-  core.info(`Found ${data.result.length} deployments`)
+  core.info(`Found ${result.length} deployments`)
   core.debug(`Looking for matching deployments ${repo}/${branch}`)
 
-  const builds = data.result
+  const builds = result
     .filter(
       (d) =>
         d && d.source && d.source.config && d.source.config.repo_name === repo
@@ -63,7 +69,7 @@ export default async function getDeploymentUrl(
     })
     .filter(
       (d) =>
-        commitHash === null ||
+        !commitHash ||
         (d.deployment_trigger.metadata !== null &&
           d.deployment_trigger.metadata.commit_hash === commitHash)
     )
