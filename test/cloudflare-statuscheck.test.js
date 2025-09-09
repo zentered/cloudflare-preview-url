@@ -30,6 +30,7 @@ test('waitForDeployment() should wait until a deployment is successful - wait', 
       import: {
         fetch: async () => ({
           status: 200,
+          ok: true,
           json: mockFetch
         })
       }
@@ -59,6 +60,7 @@ test('waitForDeployment() should wait until a deployment is successful - done', 
       import: {
         fetch: async () => ({
           status: 200,
+          ok: true,
           json: mockFetch
         })
       }
@@ -96,6 +98,7 @@ test('waitForDeployment() should abort when a build has failed', async () => {
       import: {
         fetch: async () => ({
           status: 200,
+          ok: true,
           json: mockFetch
         })
       }

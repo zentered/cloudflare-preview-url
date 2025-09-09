@@ -9,8 +9,8 @@ export default async function waitForDeployment(
   projectId,
   deploymentId
 ) {
+  core.info(`Checking deployment status for ID: ${deploymentId} ...`)
   const apiUrl = `https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${projectId}/deployments`
-
   const headers = accountEmail
     ? {
         'X-Auth-Key': token,
@@ -23,7 +23,7 @@ export default async function waitForDeployment(
   const res = await fetch(apiUrl, {
     headers
   })
-  if (!res || res.status !== 200) {
+  if (!res.ok) {
     core.error(res)
     core.setFailed(
       `Failed to fetch deployment status: ${res ? res.statusText : 'No response'}`
@@ -32,6 +32,15 @@ export default async function waitForDeployment(
   const { data } = await res.json()
   core.debug('Deployment status response:')
   core.debug(JSON.stringify(data))
+  console.log(data) // Debugging line to inspect the data structure
+
+  if (!data || !data.result) {
+    core.error('Invalid API response: missing data.result')
+    core.error(JSON.stringify(data))
+    core.setFailed('API response does not contain expected data structure')
+    throw new Error('Invalid API response. Abort.')
+  }
+
   const build = data.result.filter((d) => d.id === deploymentId)[0]
 
   core.info(
