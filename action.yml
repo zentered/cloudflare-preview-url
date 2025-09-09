@@ -11,19 +11,27 @@ inputs:
     required: false
     default: ''
   environment:
-    description: "Which Cloudflare deployment environments to allow. If set to null, doesn't filter deploys by environment. Defaults to 'preview'"
+    description:
+      "Which Cloudflare deployment environments to allow. If set to null,
+      doesn't filter deploys by environment. Defaults to 'preview'"
     required: false
     default: 'preview'
   commit_hash:
-    description: "Optional commit hash to filter deployments on. Useful when the same branch can have multiple deploys."
+    description:
+      'Optional commit hash to filter deployments on. Useful when the same
+      branch can have multiple deploys.'
     required: false
   branch:
-    description: "Optional branch name to filter deployments on. Useful when the branch name is not available in the action context."
+    description:
+      'Optional branch name to filter deployments on. Useful when the branch
+      name is not available in the action context.'
     required: false
 name: Cloudflare Preview URL
 outputs:
   preview_url:
-    description: "A string with the unique URL of the deployment. Always set when a deployment is found, regardless of deployment status."
+    description:
+      'A string with the unique URL of the deployment. Always set when a
+      deployment is found, regardless of deployment status.'
 runs:
   main: dist/index.js
-  using: node20
+  using: node24
