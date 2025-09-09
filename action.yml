@@ -23,7 +23,7 @@ inputs:
 name: Cloudflare Preview URL
 outputs:
   preview_url:
-    description: "A string with the unique URL of the deployment. If it hasn't finished uploading (is incomplete), the value will be null."
+    description: "A string with the unique URL of the deployment. Always set when a deployment is found, regardless of deployment status."
 runs:
   main: dist/index.js
   using: node20
