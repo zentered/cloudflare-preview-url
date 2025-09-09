@@ -23,14 +23,14 @@ export default async function waitForDeployment(
   const res = await fetch(apiUrl, {
     headers
   })
-  if (!res || !res.ok) {
+  if (!res || res.status !== 200) {
     core.error(res)
     core.setFailed(
       `Failed to fetch deployment status: ${res ? res.statusText : 'No response'}`
     )
   }
   const { data } = await res.json()
-  core.debug(JSON.stringify(data, null, 2))
+  core.debug(data)
   const build = data.result.filter((d) => d.id === deploymentId)[0]
 
   core.info(
