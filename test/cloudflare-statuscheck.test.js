@@ -5,18 +5,16 @@ import { mock, test } from 'node:test'
 import esmock from 'esmock'
 
 const payload = {
-  data: {
-    result: [
-      {
-        id: '123abc',
-        environment: 'preview',
-        latest_stage: {
-          name: 'deploy',
-          status: 'initialized'
-        }
+  result: [
+    {
+      id: '123abc',
+      environment: 'preview',
+      latest_stage: {
+        name: 'deploy',
+        status: 'initialized'
       }
-    ]
-  }
+    }
+  ]
 }
 
 test('waitForDeployment() should wait until a deployment is successful - wait', async () => {
@@ -50,7 +48,7 @@ test('waitForDeployment() should wait until a deployment is successful - wait', 
 
 test('waitForDeployment() should wait until a deployment is successful - done', async () => {
   const mockFetch = mock.fn(async () => {
-    payload.data.result[0].latest_stage.status = 'success'
+    payload.result[0].latest_stage.status = 'success'
     return payload
   })
 
@@ -80,7 +78,7 @@ test('waitForDeployment() should wait until a deployment is successful - done', 
 
 test('waitForDeployment() should abort when a build has failed', async () => {
   const mockFetch = mock.fn(async () => {
-    payload.data.result[0].latest_stage.status = 'failure'
+    payload.result[0].latest_stage.status = 'failure'
     return payload
   })
   const mockSetFailed = mock.fn()

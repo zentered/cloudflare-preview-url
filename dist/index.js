@@ -27525,7 +27525,7 @@ async function waitForDeployment(
     )
     throw new Error(`HTTP ${res.status}: ${res.statusText}`)
   }
-  const { data } = await res.json()
+  const data = await res.json()
   core.debug('Deployment status response:')
   core.debug(JSON.stringify(data))
 
