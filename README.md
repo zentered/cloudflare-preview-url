@@ -49,7 +49,7 @@ on:
     cloudflare_project_id: 'repo-name'
     wait_until_ready: true
 - name: Get URL
-  run: echo "https://${{ steps.cloudflare_preview_url.outputs.preview_url }}"
+  run: echo "${{ steps.cloudflare_preview_url.outputs.preview_url }}"
 ```
 
 We recommend setting a timeout for this action, if something goes wrong with the
@@ -86,9 +86,9 @@ token.
 
 ## Outputs
 
-| Name          | Description                                                                                                             |
-| ------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `preview_url` | A string with the unique URL of the deployment. If it hasn't finished uploading (is incomplete), the value will be null |
+| Name          | Description                                                                                                            |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `preview_url` | A string with the unique URL of the deployment. Always set when a deployment is found, regardless of deployment status |
 
 ## Contributing
 

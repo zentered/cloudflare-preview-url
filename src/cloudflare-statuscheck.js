@@ -28,11 +28,11 @@ export default async function waitForDeployment(
     core.setFailed(
       `Failed to fetch deployment status: ${res ? res.statusText : 'No response'}`
     )
+    throw new Error(`HTTP ${res.status}: ${res.statusText}`)
   }
   const { data } = await res.json()
   core.debug('Deployment status response:')
   core.debug(JSON.stringify(data))
-  console.log(data) // Debugging line to inspect the data structure
 
   if (!data || !data.result) {
     core.error('Invalid API response: missing data.result')
