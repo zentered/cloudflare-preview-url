@@ -30,7 +30,8 @@ export default async function waitForDeployment(
     )
   }
   const { data } = await res.json()
-  core.debug(data)
+  core.debug('Deployment status response:')
+  core.debug(JSON.stringify(data))
   const build = data.result.filter((d) => d.id === deploymentId)[0]
 
   core.info(
