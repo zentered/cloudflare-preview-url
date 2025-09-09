@@ -47,7 +47,8 @@
     ]
   },
   "dependencies": {
-    "@actions/core": "^1.11.1"
+    "@actions/core": "^1.11.1",
+    "cloudflare": "^5.0.0"
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^19.8.1",

@@ -14,13 +14,19 @@ async function readFixture(name) {
 }
 
 test('getDeploymentUrl() should return a Cloudflare build', async () => {
-  const mockFetch = mock.fn(async () => readFixture('success'))
+  const mockCloudflare = mock.fn(() => ({
+    pages: {
+      projects: {
+        deployments: {
+          list: mock.fn(async () => readFixture('success'))
+        }
+      }
+    }
+  }))
+
   const getDeploymentUrl = await esmock('../src/cloudflare.js', {
-    import: {
-      fetch: async () => ({
-        status: 200,
-        json: mockFetch
-      })
+    cloudflare: {
+      default: mockCloudflare
     }
   })
 
@@ -39,27 +45,28 @@ test('getDeploymentUrl() should return a Cloudflare build', async () => {
 })
 
 test('getDeploymentUrl() should fail if there are no deployments', async () => {
-  const mockFetch = mock.fn(async () => readFixture('empty'))
   const mockSetFailed = mock.fn()
-
-  const getDeploymentUrl = await esmock(
-    '../src/cloudflare.js',
-    {
-      '@actions/core': {
-        info: mock.fn(),
-        error: mock.fn(),
-        setFailed: mockSetFailed
-      }
-    },
-    {
-      import: {
-        fetch: async () => ({
-          status: 200,
-          json: mockFetch
-        })
+  const mockCloudflare = mock.fn(() => ({
+    pages: {
+      projects: {
+        deployments: {
+          list: mock.fn(async () => readFixture('empty'))
+        }
       }
     }
-  )
+  }))
+
+  const getDeploymentUrl = await esmock('../src/cloudflare.js', {
+    '@actions/core': {
+      info: mock.fn(),
+      debug: mock.fn(),
+      error: mock.fn(),
+      setFailed: mockSetFailed
+    },
+    cloudflare: {
+      default: mockCloudflare
+    }
+  })
 
   const fn = getDeploymentUrl(
     '123xyz',
@@ -81,13 +88,19 @@ test('getDeploymentUrl() should fail if there are no deployments', async () => {
 })
 
 test('getDeploymentUrl() should check all environments when null', async () => {
-  const mockFetch = mock.fn(async () => readFixture('check-environments'))
+  const mockCloudflare = mock.fn(() => ({
+    pages: {
+      projects: {
+        deployments: {
+          list: mock.fn(async () => readFixture('check-environments'))
+        }
+      }
+    }
+  }))
+
   const getDeploymentUrl = await esmock('../src/cloudflare.js', {
-    import: {
-      fetch: async () => ({
-        status: 200,
-        json: mockFetch
-      })
+    cloudflare: {
+      default: mockCloudflare
     }
   })
 
@@ -106,13 +119,19 @@ test('getDeploymentUrl() should check all environments when null', async () => {
 })
 
 test('getDeploymentUrl() should filter by commitHash when provided', async () => {
-  const mockFetch = mock.fn(async () => readFixture('filter-by-commithash'))
+  const mockCloudflare = mock.fn(() => ({
+    pages: {
+      projects: {
+        deployments: {
+          list: mock.fn(async () => readFixture('filter-by-commithash'))
+        }
+      }
+    }
+  }))
+
   const getDeploymentUrl = await esmock('../src/cloudflare.js', {
-    import: {
-      fetch: async () => ({
-        status: 200,
-        json: mockFetch
-      })
+    cloudflare: {
+      default: mockCloudflare
     }
   })
 
@@ -131,26 +150,28 @@ test('getDeploymentUrl() should filter by commitHash when provided', async () =>
 })
 
 test('getDeploymentUrl() should fail if there are no matching builds', async () => {
-  const mockFetch = mock.fn(async () => readFixture('filter-by-commithash'))
   const mockSetFailed = mock.fn()
-  const getDeploymentUrl = await esmock(
-    '../src/cloudflare.js',
-    {
-      '@actions/core': {
-        info: mock.fn(),
-        error: mock.fn(),
-        setFailed: mockSetFailed
-      }
-    },
-    {
-      import: {
-        fetch: async () => ({
-          status: 200,
-          json: mockFetch
-        })
+  const mockCloudflare = mock.fn(() => ({
+    pages: {
+      projects: {
+        deployments: {
+          list: mock.fn(async () => readFixture('filter-by-commithash'))
+        }
       }
     }
-  )
+  }))
+
+  const getDeploymentUrl = await esmock('../src/cloudflare.js', {
+    '@actions/core': {
+      info: mock.fn(),
+      debug: mock.fn(),
+      error: mock.fn(),
+      setFailed: mockSetFailed
+    },
+    cloudflare: {
+      default: mockCloudflare
+    }
+  })
 
   const fn = getDeploymentUrl(
     '123xyz',

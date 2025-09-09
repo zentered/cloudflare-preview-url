@@ -4,35 +4,37 @@ import assert from 'node:assert'
 import { mock, test } from 'node:test'
 import esmock from 'esmock'
 
-const payload = {
-  data: {
-    result: [
-      {
-        id: '123abc',
-        environment: 'preview',
-        latest_stage: {
-          name: 'deploy',
-          status: 'initialized'
-        }
+const mockResponse = {
+  result: [
+    {
+      id: '123abc',
+      environment: 'preview',
+      latest_stage: {
+        name: 'deploy',
+        status: 'initialized'
       }
-    ]
-  }
+    }
+  ]
 }
 
 test('waitForDeployment() should wait until a deployment is successful - wait', async () => {
-  const mockFetch = mock.fn(async () => {
-    return payload
-  })
+  const mockCloudflare = function () {
+    return {
+      pages: {
+        projects: {
+          deployments: {
+            list: mock.fn(async () => mockResponse)
+          }
+        }
+      }
+    }
+  }
 
   const checkDeploymentStatus = await esmock(
     '../src/cloudflare-statuscheck.js',
     {
-      import: {
-        fetch: async () => ({
-          status: 200,
-          ok: true,
-          json: mockFetch
-        })
+      cloudflare: {
+        default: mockCloudflare
       }
     }
   )
@@ -49,20 +51,34 @@ test('waitForDeployment() should wait until a deployment is successful - wait', 
 })
 
 test('waitForDeployment() should wait until a deployment is successful - done', async () => {
-  const mockFetch = mock.fn(async () => {
-    payload.data.result[0].latest_stage.status = 'success'
-    return payload
-  })
+  const successResponse = {
+    result: [
+      {
+        id: '123abc',
+        environment: 'preview',
+        latest_stage: {
+          name: 'deploy',
+          status: 'success'
+        }
+      }
+    ]
+  }
+
+  const mockCloudflare = mock.fn(() => ({
+    pages: {
+      projects: {
+        deployments: {
+          list: mock.fn(async () => successResponse)
+        }
+      }
+    }
+  }))
 
   const checkDeploymentStatus = await esmock(
     '../src/cloudflare-statuscheck.js',
     {
-      import: {
-        fetch: async () => ({
-          status: 200,
-          ok: true,
-          json: mockFetch
-        })
+      cloudflare: {
+        default: mockCloudflare
       }
     }
   )
@@ -79,28 +95,41 @@ test('waitForDeployment() should wait until a deployment is successful - done', 
 })
 
 test('waitForDeployment() should abort when a build has failed', async () => {
-  const mockFetch = mock.fn(async () => {
-    payload.data.result[0].latest_stage.status = 'failure'
-    return payload
-  })
+  const failureResponse = {
+    result: [
+      {
+        id: '123abc',
+        environment: 'preview',
+        latest_stage: {
+          name: 'deploy',
+          status: 'failure'
+        }
+      }
+    ]
+  }
+
   const mockSetFailed = mock.fn()
+  const mockCloudflare = mock.fn(() => ({
+    pages: {
+      projects: {
+        deployments: {
+          list: mock.fn(async () => failureResponse)
+        }
+      }
+    }
+  }))
 
   const checkDeploymentStatus = await esmock(
     '../src/cloudflare-statuscheck.js',
     {
       '@actions/core': {
         info: mock.fn(),
+        debug: mock.fn(),
         error: mock.fn(),
         setFailed: mockSetFailed
-      }
-    },
-    {
-      import: {
-        fetch: async () => ({
-          status: 200,
-          ok: true,
-          json: mockFetch
-        })
+      },
+      cloudflare: {
+        default: mockCloudflare
       }
     }
   )
