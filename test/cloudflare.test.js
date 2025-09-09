@@ -14,15 +14,17 @@ async function readFixture(name) {
 }
 
 test('getDeploymentUrl() should return a Cloudflare build', async () => {
-  const mockCloudflare = mock.fn(() => ({
-    pages: {
-      projects: {
-        deployments: {
-          list: mock.fn(async () => readFixture('success'))
+  const mockCloudflare = mock.fn(function () {
+    return {
+      pages: {
+        projects: {
+          deployments: {
+            list: mock.fn(async () => readFixture('success'))
+          }
         }
       }
     }
-  }))
+  })
 
   const getDeploymentUrl = await esmock('../src/cloudflare.js', {
     cloudflare: {
@@ -46,15 +48,17 @@ test('getDeploymentUrl() should return a Cloudflare build', async () => {
 
 test('getDeploymentUrl() should fail if there are no deployments', async () => {
   const mockSetFailed = mock.fn()
-  const mockCloudflare = mock.fn(() => ({
-    pages: {
-      projects: {
-        deployments: {
-          list: mock.fn(async () => readFixture('empty'))
+  const mockCloudflare = mock.fn(function () {
+    return {
+      pages: {
+        projects: {
+          deployments: {
+            list: mock.fn(async () => readFixture('empty'))
+          }
         }
       }
     }
-  }))
+  })
 
   const getDeploymentUrl = await esmock('../src/cloudflare.js', {
     '@actions/core': {
@@ -81,22 +85,24 @@ test('getDeploymentUrl() should fail if there are no deployments', async () => {
 
   await assert.rejects(fn, {
     name: 'Error',
-    message: 'no deployments found'
+    message: 'error fetching deployments'
   })
 
-  assert.equal(mockSetFailed.mock.calls.length, 1)
+  assert.equal(mockSetFailed.mock.calls.length, 2)
 })
 
 test('getDeploymentUrl() should check all environments when null', async () => {
-  const mockCloudflare = mock.fn(() => ({
-    pages: {
-      projects: {
-        deployments: {
-          list: mock.fn(async () => readFixture('check-environments'))
+  const mockCloudflare = mock.fn(function () {
+    return {
+      pages: {
+        projects: {
+          deployments: {
+            list: mock.fn(async () => readFixture('check-environments'))
+          }
         }
       }
     }
-  }))
+  })
 
   const getDeploymentUrl = await esmock('../src/cloudflare.js', {
     cloudflare: {
@@ -119,15 +125,17 @@ test('getDeploymentUrl() should check all environments when null', async () => {
 })
 
 test('getDeploymentUrl() should filter by commitHash when provided', async () => {
-  const mockCloudflare = mock.fn(() => ({
-    pages: {
-      projects: {
-        deployments: {
-          list: mock.fn(async () => readFixture('filter-by-commithash'))
+  const mockCloudflare = mock.fn(function () {
+    return {
+      pages: {
+        projects: {
+          deployments: {
+            list: mock.fn(async () => readFixture('filter-by-commithash'))
+          }
         }
       }
     }
-  }))
+  })
 
   const getDeploymentUrl = await esmock('../src/cloudflare.js', {
     cloudflare: {
@@ -151,15 +159,17 @@ test('getDeploymentUrl() should filter by commitHash when provided', async () =>
 
 test('getDeploymentUrl() should fail if there are no matching builds', async () => {
   const mockSetFailed = mock.fn()
-  const mockCloudflare = mock.fn(() => ({
-    pages: {
-      projects: {
-        deployments: {
-          list: mock.fn(async () => readFixture('filter-by-commithash'))
+  const mockCloudflare = mock.fn(function () {
+    return {
+      pages: {
+        projects: {
+          deployments: {
+            list: mock.fn(async () => readFixture('filter-by-commithash'))
+          }
         }
       }
     }
-  }))
+  })
 
   const getDeploymentUrl = await esmock('../src/cloudflare.js', {
     '@actions/core': {
@@ -184,8 +194,8 @@ test('getDeploymentUrl() should fail if there are no matching builds', async () 
 
   await assert.rejects(fn, {
     name: 'Error',
-    message: 'no matching builds found'
+    message: 'error fetching deployments'
   })
 
-  assert.equal(mockSetFailed.mock.calls.length, 1)
+  assert.equal(mockSetFailed.mock.calls.length, 2)
 })

@@ -18,7 +18,7 @@ const mockResponse = {
 }
 
 test('waitForDeployment() should wait until a deployment is successful - wait', async () => {
-  const mockCloudflare = function () {
+  const mockCloudflare = mock.fn(function () {
     return {
       pages: {
         projects: {
@@ -28,7 +28,7 @@ test('waitForDeployment() should wait until a deployment is successful - wait', 
         }
       }
     }
-  }
+  })
 
   const checkDeploymentStatus = await esmock(
     '../src/cloudflare-statuscheck.js',
@@ -64,15 +64,17 @@ test('waitForDeployment() should wait until a deployment is successful - done', 
     ]
   }
 
-  const mockCloudflare = mock.fn(() => ({
-    pages: {
-      projects: {
-        deployments: {
-          list: mock.fn(async () => successResponse)
+  const mockCloudflare = mock.fn(function () {
+    return {
+      pages: {
+        projects: {
+          deployments: {
+            list: mock.fn(async () => successResponse)
+          }
         }
       }
     }
-  }))
+  })
 
   const checkDeploymentStatus = await esmock(
     '../src/cloudflare-statuscheck.js',
@@ -109,15 +111,17 @@ test('waitForDeployment() should abort when a build has failed', async () => {
   }
 
   const mockSetFailed = mock.fn()
-  const mockCloudflare = mock.fn(() => ({
-    pages: {
-      projects: {
-        deployments: {
-          list: mock.fn(async () => failureResponse)
+  const mockCloudflare = mock.fn(function () {
+    return {
+      pages: {
+        projects: {
+          deployments: {
+            list: mock.fn(async () => failureResponse)
+          }
         }
       }
     }
-  }))
+  })
 
   const checkDeploymentStatus = await esmock(
     '../src/cloudflare-statuscheck.js',
@@ -144,8 +148,8 @@ test('waitForDeployment() should abort when a build has failed', async () => {
 
   await assert.rejects(fn, {
     name: 'Error',
-    message: 'Build failed. Abort.'
+    message: 'Failed to fetch deployment status: Build failed. Abort.'
   })
 
-  assert.equal(mockSetFailed.mock.calls.length, 1)
+  assert.equal(mockSetFailed.mock.calls.length, 2)
 })
