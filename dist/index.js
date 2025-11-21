@@ -76196,6 +76196,30 @@ Cloudflare.SchemaValidation = schema_validation_schema_validation_SchemaValidati
 
 /* harmony default export */ const cloudflare = (Cloudflare);
 //# sourceMappingURL=index.mjs.map
+;// CONCATENATED MODULE: ./src/cloudflare-client.js
+
+
+;
+
+/**
+ * Creates a Cloudflare API client with the appropriate authentication method.
+ *
+ * @param {string} token - API token (modern auth) or API key (legacy auth)
+ * @param {string} accountEmail - Email address for legacy API key authentication (optional)
+ * @returns {Cloudflare} Configured Cloudflare client
+ *
+ * Authentication modes:
+ * - Modern: Pass only token (no accountEmail) - uses API token authentication
+ * - Legacy: Pass both token and accountEmail - uses API key + email authentication
+ */
+function createCloudflareClient(token, accountEmail) {
+  return new cloudflare({
+    apiToken: accountEmail ? undefined : token,
+    apiKey: accountEmail ? token : undefined,
+    apiEmail: accountEmail
+  })
+}
+
 ;// CONCATENATED MODULE: ./src/cloudflare.js
 
 
@@ -76218,11 +76242,7 @@ async function getDeploymentUrl(
     core.info(`Fetching deployments for project ${projectId}`)
   }
 
-  const cf = new cloudflare({
-    apiToken: accountEmail ? undefined : token,
-    apiKey: accountEmail ? token : undefined,
-    apiEmail: accountEmail
-  })
+  const cf = createCloudflareClient(token, accountEmail)
 
   try {
     const response = await cf.pages.projects.deployments.list({
@@ -76286,7 +76306,7 @@ async function getDeploymentUrl(
     core.error('Error fetching deployments from Cloudflare API')
     core.error(error.message)
     core.setFailed('error fetching deployments')
-    throw new Error('error fetching deployments')
+    throw new Error(`Error fetching deployments: ${error.message}`)
   }
 }
 
@@ -76305,11 +76325,7 @@ async function waitForDeployment(
 ) {
   core.info(`Checking deployment status for ID: ${deploymentId} ...`)
 
-  const cf = new cloudflare({
-    apiToken: accountEmail ? undefined : token,
-    apiKey: accountEmail ? token : undefined,
-    apiEmail: accountEmail
-  })
+  const cf = createCloudflareClient(token, accountEmail)
 
   try {
     const response = await cf.pages.projects.deployments.list({
@@ -76329,15 +76345,15 @@ async function waitForDeployment(
 
     const build = response.result.filter((d) => d.id === deploymentId)[0]
 
-    core.info(
-      `Deployment status (#${build.short_id}) ${build.latest_stage.name}: ${build.latest_stage.status}`
-    )
-
     if (!build) {
       core.error(response.result)
       core.setFailed('no build with this ID found.')
       throw new Error('No build id. Abort.')
     }
+
+    core.info(
+      `Deployment status (#${build.short_id}) ${build.latest_stage.name}: ${build.latest_stage.status}`
+    )
 
     if (build.latest_stage.status === 'failure') {
       core.setFailed(`${build.latest_stage.name}: ${build.latest_stage.status}`)

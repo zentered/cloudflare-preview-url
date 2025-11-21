@@ -33,7 +33,7 @@ test('waitForDeployment() should wait until a deployment is successful - wait', 
   const checkDeploymentStatus = await esmock(
     '../src/cloudflare-statuscheck.js',
     {
-      cloudflare: {
+      '../src/cloudflare-client.js': {
         default: mockCloudflare
       }
     }
@@ -79,7 +79,7 @@ test('waitForDeployment() should wait until a deployment is successful - done', 
   const checkDeploymentStatus = await esmock(
     '../src/cloudflare-statuscheck.js',
     {
-      cloudflare: {
+      '../src/cloudflare-client.js': {
         default: mockCloudflare
       }
     }
@@ -132,7 +132,7 @@ test('waitForDeployment() should abort when a build has failed', async () => {
         error: mock.fn(),
         setFailed: mockSetFailed
       },
-      cloudflare: {
+      '../src/cloudflare-client.js': {
         default: mockCloudflare
       }
     }
@@ -152,4 +152,51 @@ test('waitForDeployment() should abort when a build has failed', async () => {
   })
 
   assert.equal(mockSetFailed.mock.calls.length, 2)
+})
+
+test('waitForDeployment() should handle SDK errors gracefully', async () => {
+  const mockSetFailed = mock.fn()
+  const mockCloudflare = mock.fn(function () {
+    return {
+      pages: {
+        projects: {
+          deployments: {
+            list: mock.fn(async () => {
+              throw new Error('API authentication failed')
+            })
+          }
+        }
+      }
+    }
+  })
+
+  const checkDeploymentStatus = await esmock(
+    '../src/cloudflare-statuscheck.js',
+    {
+      '@actions/core': {
+        info: mock.fn(),
+        debug: mock.fn(),
+        error: mock.fn(),
+        setFailed: mockSetFailed
+      },
+      '../src/cloudflare-client.js': {
+        default: mockCloudflare
+      }
+    }
+  )
+
+  const fn = checkDeploymentStatus(
+    '123xyz',
+    'zentered',
+    'user@example.com',
+    'cf-project',
+    '123abc'
+  )
+
+  await assert.rejects(fn, {
+    name: 'Error',
+    message: 'Failed to fetch deployment status: API authentication failed'
+  })
+
+  assert.equal(mockSetFailed.mock.calls.length, 1)
 })

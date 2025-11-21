@@ -1,7 +1,7 @@
 'use strict'
 
 import core from '@actions/core'
-import Cloudflare from 'cloudflare'
+import createCloudflareClient from './cloudflare-client.js'
 
 export default async function waitForDeployment(
   token,
@@ -12,11 +12,7 @@ export default async function waitForDeployment(
 ) {
   core.info(`Checking deployment status for ID: ${deploymentId} ...`)
 
-  const cf = new Cloudflare({
-    apiToken: accountEmail ? undefined : token,
-    apiKey: accountEmail ? token : undefined,
-    apiEmail: accountEmail
-  })
+  const cf = createCloudflareClient(token, accountEmail)
 
   try {
     const response = await cf.pages.projects.deployments.list({
@@ -36,15 +32,15 @@ export default async function waitForDeployment(
 
     const build = response.result.filter((d) => d.id === deploymentId)[0]
 
-    core.info(
-      `Deployment status (#${build.short_id}) ${build.latest_stage.name}: ${build.latest_stage.status}`
-    )
-
     if (!build) {
       core.error(response.result)
       core.setFailed('no build with this ID found.')
       throw new Error('No build id. Abort.')
     }
+
+    core.info(
+      `Deployment status (#${build.short_id}) ${build.latest_stage.name}: ${build.latest_stage.status}`
+    )
 
     if (build.latest_stage.status === 'failure') {
       core.setFailed(`${build.latest_stage.name}: ${build.latest_stage.status}`)

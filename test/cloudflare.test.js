@@ -27,7 +27,7 @@ test('getDeploymentUrl() should return a Cloudflare build', async () => {
   })
 
   const getDeploymentUrl = await esmock('../src/cloudflare.js', {
-    cloudflare: {
+    '../src/cloudflare-client.js': {
       default: mockCloudflare
     }
   })
@@ -67,7 +67,7 @@ test('getDeploymentUrl() should fail if there are no deployments', async () => {
       error: mock.fn(),
       setFailed: mockSetFailed
     },
-    cloudflare: {
+    '../src/cloudflare-client.js': {
       default: mockCloudflare
     }
   })
@@ -85,7 +85,7 @@ test('getDeploymentUrl() should fail if there are no deployments', async () => {
 
   await assert.rejects(fn, {
     name: 'Error',
-    message: 'error fetching deployments'
+    message: 'Error fetching deployments: no deployments found'
   })
 
   assert.equal(mockSetFailed.mock.calls.length, 2)
@@ -105,7 +105,7 @@ test('getDeploymentUrl() should check all environments when null', async () => {
   })
 
   const getDeploymentUrl = await esmock('../src/cloudflare.js', {
-    cloudflare: {
+    '../src/cloudflare-client.js': {
       default: mockCloudflare
     }
   })
@@ -138,7 +138,7 @@ test('getDeploymentUrl() should filter by commitHash when provided', async () =>
   })
 
   const getDeploymentUrl = await esmock('../src/cloudflare.js', {
-    cloudflare: {
+    '../src/cloudflare-client.js': {
       default: mockCloudflare
     }
   })
@@ -178,7 +178,7 @@ test('getDeploymentUrl() should fail if there are no matching builds', async () 
       error: mock.fn(),
       setFailed: mockSetFailed
     },
-    cloudflare: {
+    '../src/cloudflare-client.js': {
       default: mockCloudflare
     }
   })
@@ -194,8 +194,55 @@ test('getDeploymentUrl() should fail if there are no matching builds', async () 
 
   await assert.rejects(fn, {
     name: 'Error',
-    message: 'error fetching deployments'
+    message: 'Error fetching deployments: no matching builds found'
   })
 
   assert.equal(mockSetFailed.mock.calls.length, 2)
+})
+
+test('getDeploymentUrl() should handle SDK errors gracefully', async () => {
+  const mockSetFailed = mock.fn()
+  const mockCloudflare = mock.fn(function () {
+    return {
+      pages: {
+        projects: {
+          deployments: {
+            list: mock.fn(async () => {
+              throw new Error('Network timeout')
+            })
+          }
+        }
+      }
+    }
+  })
+
+  const getDeploymentUrl = await esmock('../src/cloudflare.js', {
+    '@actions/core': {
+      info: mock.fn(),
+      debug: mock.fn(),
+      error: mock.fn(),
+      setFailed: mockSetFailed
+    },
+    '../src/cloudflare-client.js': {
+      default: mockCloudflare
+    }
+  })
+
+  const fn = getDeploymentUrl(
+    '123xyz',
+    'zentered',
+    'user@example.com',
+    'cf-project',
+    'website',
+    'fix/test-1',
+    'preview',
+    null
+  )
+
+  await assert.rejects(fn, {
+    name: 'Error',
+    message: 'Error fetching deployments: Network timeout'
+  })
+
+  assert.equal(mockSetFailed.mock.calls.length, 1)
 })

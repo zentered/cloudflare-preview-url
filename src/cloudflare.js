@@ -1,7 +1,7 @@
 'use strict'
 
 import core from '@actions/core'
-import Cloudflare from 'cloudflare'
+import createCloudflareClient from './cloudflare-client.js'
 
 export default async function getDeploymentUrl(
   token,
@@ -19,11 +19,7 @@ export default async function getDeploymentUrl(
     core.info(`Fetching deployments for project ${projectId}`)
   }
 
-  const cf = new Cloudflare({
-    apiToken: accountEmail ? undefined : token,
-    apiKey: accountEmail ? token : undefined,
-    apiEmail: accountEmail
-  })
+  const cf = createCloudflareClient(token, accountEmail)
 
   try {
     const response = await cf.pages.projects.deployments.list({
@@ -87,6 +83,6 @@ export default async function getDeploymentUrl(
     core.error('Error fetching deployments from Cloudflare API')
     core.error(error.message)
     core.setFailed('error fetching deployments')
-    throw new Error('error fetching deployments')
+    throw new Error(`Error fetching deployments: ${error.message}`)
   }
 }
