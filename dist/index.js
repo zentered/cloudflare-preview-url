@@ -76245,9 +76245,8 @@ async function getDeploymentUrl(
   const cf = createCloudflareClient(token, accountEmail)
 
   try {
-    const response = await cf.pages.projects.deployments.list({
-      account_id: accountId,
-      project_name: projectId
+    const response = await cf.pages.projects.deployments.list(projectId, {
+      account_id: accountId
     })
 
     if (!response.result || response.result.length <= 0) {
@@ -76328,9 +76327,8 @@ async function waitForDeployment(
   const cf = createCloudflareClient(token, accountEmail)
 
   try {
-    const response = await cf.pages.projects.deployments.list({
-      account_id: accountId,
-      project_name: projectId
+    const response = await cf.pages.projects.deployments.list(projectId, {
+      account_id: accountId
     })
 
     core.debug('Deployment status response:')
