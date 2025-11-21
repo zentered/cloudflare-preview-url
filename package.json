@@ -48,20 +48,20 @@
   },
   "dependencies": {
     "@actions/core": "^1.11.1",
-    "cloudflare": "^5.0.0"
+    "cloudflare": "^5.2.0"
   },
   "devDependencies": {
-    "@commitlint/config-conventional": "^19.8.1",
-    "@eslint/js": "^9.35.0",
-    "@vercel/ncc": "^0.38.3",
-    "commitlint": "^19.8.1",
-    "eslint": "^9.35.0",
-    "esmock": "^2.7.2",
-    "globals": "^15.15.0",
+    "@commitlint/config-conventional": "^20.0.0",
+    "@eslint/js": "^9.39.1",
+    "@vercel/ncc": "^0.38.4",
+    "commitlint": "^20.1.0",
+    "eslint": "^9.39.1",
+    "esmock": "^2.7.3",
+    "globals": "^16.5.0",
     "husky": "^9.1.7",
     "pinst": "^3.0.0",
     "prettier": "^3.6.2",
-    "webpack": "^5.101.3"
+    "webpack": "^5.103.0"
   },
   "engines": {
     "node": ">=20"

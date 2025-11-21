@@ -33996,7 +33996,7 @@ function stringify(object, opts = {}) {
 }
 //# sourceMappingURL=stringify.mjs.map
 ;// CONCATENATED MODULE: ./node_modules/cloudflare/version.mjs
-const VERSION = '5.0.0'; // x-release-please-version
+const VERSION = '5.2.0'; // x-release-please-version
 //# sourceMappingURL=version.mjs.map
 ;// CONCATENATED MODULE: ./node_modules/cloudflare/error.mjs
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
@@ -35557,19 +35557,19 @@ const coerceBoolean = (value) => {
     return Boolean(value);
 };
 const maybeCoerceInteger = (value) => {
-    if (value === undefined) {
+    if (value == null) {
         return undefined;
     }
     return coerceInteger(value);
 };
 const maybeCoerceFloat = (value) => {
-    if (value === undefined) {
+    if (value == null) {
         return undefined;
     }
     return coerceFloat(value);
 };
 const maybeCoerceBoolean = (value) => {
-    if (value === undefined) {
+    if (value == null) {
         return undefined;
     }
     return coerceBoolean(value);
@@ -37412,6 +37412,155 @@ Zones.AvailableRatePlansSinglePage = AvailableRatePlansSinglePage;
 Zones.RatePlans = RatePlans;
 Zones.RatePlanGetResponsesSinglePage = RatePlanGetResponsesSinglePage;
 //# sourceMappingURL=zones.mjs.map
+;// CONCATENATED MODULE: ./node_modules/cloudflare/resources/load-balancers/monitor-groups.mjs
+// File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+
+
+class MonitorGroups extends APIResource {
+    /**
+     * Create a new monitor group.
+     *
+     * @example
+     * ```ts
+     * const monitorGroup =
+     *   await client.loadBalancers.monitorGroups.create({
+     *     account_id: '023e105f4ecef8ad9ca31a8372d0c353',
+     *     id: 'id',
+     *     description: 'Primary datacenter monitors',
+     *     members: [
+     *       {
+     *         enabled: true,
+     *         monitor_id: 'monitor_id',
+     *         monitoring_only: false,
+     *         must_be_healthy: true,
+     *       },
+     *     ],
+     *   });
+     * ```
+     */
+    create(params, options) {
+        const { account_id, ...body } = params;
+        return this._client.post(`/accounts/${account_id}/load_balancers/monitor_groups`, {
+            body,
+            ...options,
+        })._thenUnwrap((obj) => obj.result);
+    }
+    /**
+     * Modify a configured monitor group.
+     *
+     * @example
+     * ```ts
+     * const monitorGroup =
+     *   await client.loadBalancers.monitorGroups.update(
+     *     '17b5962d775c646f3f9725cbc7a53df4',
+     *     {
+     *       account_id: '023e105f4ecef8ad9ca31a8372d0c353',
+     *       id: 'id',
+     *       description: 'Primary datacenter monitors',
+     *       members: [
+     *         {
+     *           enabled: true,
+     *           monitor_id: 'monitor_id',
+     *           monitoring_only: false,
+     *           must_be_healthy: true,
+     *         },
+     *       ],
+     *     },
+     *   );
+     * ```
+     */
+    update(monitorGroupId, params, options) {
+        const { account_id, ...body } = params;
+        return this._client.put(`/accounts/${account_id}/load_balancers/monitor_groups/${monitorGroupId}`, {
+            body,
+            ...options,
+        })._thenUnwrap((obj) => obj.result);
+    }
+    /**
+     * List configured monitor groups.
+     *
+     * @example
+     * ```ts
+     * // Automatically fetches more pages as needed.
+     * for await (const monitorGroup of client.loadBalancers.monitorGroups.list(
+     *   { account_id: '023e105f4ecef8ad9ca31a8372d0c353' },
+     * )) {
+     *   // ...
+     * }
+     * ```
+     */
+    list(params, options) {
+        const { account_id } = params;
+        return this._client.getAPIList(`/accounts/${account_id}/load_balancers/monitor_groups`, MonitorGroupsSinglePage, options);
+    }
+    /**
+     * Delete a configured monitor group.
+     *
+     * @example
+     * ```ts
+     * const monitorGroup =
+     *   await client.loadBalancers.monitorGroups.delete(
+     *     '17b5962d775c646f3f9725cbc7a53df4',
+     *     { account_id: '023e105f4ecef8ad9ca31a8372d0c353' },
+     *   );
+     * ```
+     */
+    delete(monitorGroupId, params, options) {
+        const { account_id } = params;
+        return this._client.delete(`/accounts/${account_id}/load_balancers/monitor_groups/${monitorGroupId}`, options)._thenUnwrap((obj) => obj.result);
+    }
+    /**
+     * Apply changes to an existing monitor group, overwriting the supplied properties.
+     *
+     * @example
+     * ```ts
+     * const monitorGroup =
+     *   await client.loadBalancers.monitorGroups.edit(
+     *     '17b5962d775c646f3f9725cbc7a53df4',
+     *     {
+     *       account_id: '023e105f4ecef8ad9ca31a8372d0c353',
+     *       id: 'id',
+     *       description: 'Primary datacenter monitors',
+     *       members: [
+     *         {
+     *           enabled: true,
+     *           monitor_id: 'monitor_id',
+     *           monitoring_only: false,
+     *           must_be_healthy: true,
+     *         },
+     *       ],
+     *     },
+     *   );
+     * ```
+     */
+    edit(monitorGroupId, params, options) {
+        const { account_id, ...body } = params;
+        return this._client.patch(`/accounts/${account_id}/load_balancers/monitor_groups/${monitorGroupId}`, {
+            body,
+            ...options,
+        })._thenUnwrap((obj) => obj.result);
+    }
+    /**
+     * Fetch a single configured monitor group.
+     *
+     * @example
+     * ```ts
+     * const monitorGroup =
+     *   await client.loadBalancers.monitorGroups.get(
+     *     '17b5962d775c646f3f9725cbc7a53df4',
+     *     { account_id: '023e105f4ecef8ad9ca31a8372d0c353' },
+     *   );
+     * ```
+     */
+    get(monitorGroupId, params, options) {
+        const { account_id } = params;
+        return this._client.get(`/accounts/${account_id}/load_balancers/monitor_groups/${monitorGroupId}`, options)._thenUnwrap((obj) => obj.result);
+    }
+}
+class MonitorGroupsSinglePage extends SinglePage {
+}
+MonitorGroups.MonitorGroupsSinglePage = MonitorGroupsSinglePage;
+//# sourceMappingURL=monitor-groups.mjs.map
 ;// CONCATENATED MODULE: ./node_modules/cloudflare/resources/load-balancers/previews.mjs
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
@@ -37912,10 +38061,13 @@ Pools.ReferenceGetResponsesSinglePage = references_ReferenceGetResponsesSinglePa
 
 
 
+
+
 class LoadBalancers extends APIResource {
     constructor() {
         super(...arguments);
         this.monitors = new Monitors(this._client);
+        this.monitorGroups = new MonitorGroups(this._client);
         this.pools = new Pools(this._client);
         this.previews = new Previews(this._client);
         this.regions = new Regions(this._client);
@@ -38040,6 +38192,8 @@ class LoadBalancersSinglePage extends SinglePage {
 LoadBalancers.LoadBalancersSinglePage = LoadBalancersSinglePage;
 LoadBalancers.Monitors = Monitors;
 LoadBalancers.MonitorsSinglePage = MonitorsSinglePage;
+LoadBalancers.MonitorGroups = MonitorGroups;
+LoadBalancers.MonitorGroupsSinglePage = MonitorGroupsSinglePage;
 LoadBalancers.Pools = Pools;
 LoadBalancers.PoolsSinglePage = PoolsSinglePage;
 LoadBalancers.Previews = Previews;
@@ -39921,22 +40075,75 @@ class Records extends APIResource {
      * Scan for common DNS records on your domain and automatically add them to your
      * zone. Useful if you haven't updated your nameservers yet.
      *
-     * @example
-     * ```ts
-     * const response = await client.dns.records.scan({
-     *   zone_id: '023e105f4ecef8ad9ca31a8372d0c353',
-     *   body: {},
-     * });
-     * ```
+     * @deprecated This endpoint is deprecated in favor of a new asynchronous version. Please use the [/scan/trigger](https://developers.cloudflare.com/api/resources/dns/subresources/records/methods/scan/trigger) and [/scan/review](https://developers.cloudflare.com/api/resources/dns/subresources/records/methods/scan/review) endpoints instead.
      */
     scan(params, options) {
         const { zone_id, body } = params;
         return this._client.post(`/zones/${zone_id}/dns_records/scan`, { body: body, ...options })._thenUnwrap((obj) => obj.result);
     }
+    /**
+     * Retrieves the list of DNS records discovered up to this point by the
+     * asynchronous scan. These records are temporary until explicitly accepted or
+     * rejected via `POST /scan/review`. Additional records may be discovered by the
+     * scan later.
+     *
+     * @example
+     * ```ts
+     * // Automatically fetches more pages as needed.
+     * for await (const recordResponse of client.dns.records.scanList(
+     *   { zone_id: '023e105f4ecef8ad9ca31a8372d0c353' },
+     * )) {
+     *   // ...
+     * }
+     * ```
+     */
+    scanList(params, options) {
+        const { zone_id } = params;
+        return this._client.getAPIList(`/zones/${zone_id}/dns_records/scan/review`, RecordResponsesSinglePage, options);
+    }
+    /**
+     * Accept or reject DNS records found by the DNS records scan. Accepted records
+     * will be permanently added to the zone, while rejected records will be
+     * permanently deleted.
+     *
+     * @example
+     * ```ts
+     * const response = await client.dns.records.scanReview({
+     *   zone_id: '023e105f4ecef8ad9ca31a8372d0c353',
+     * });
+     * ```
+     */
+    scanReview(params, options) {
+        const { zone_id, ...body } = params;
+        return this._client.post(`/zones/${zone_id}/dns_records/scan/review`, {
+            body,
+            ...options,
+        })._thenUnwrap((obj) => obj.result);
+    }
+    /**
+     * Initiates an asynchronous scan for common DNS records on your domain. Note that
+     * this **does not** automatically add records to your zone. The scan runs in the
+     * background, and results can be reviewed later using the `/scan/review`
+     * endpoints. Useful if you haven't updated your nameservers yet.
+     *
+     * @example
+     * ```ts
+     * const response = await client.dns.records.scanTrigger({
+     *   zone_id: '023e105f4ecef8ad9ca31a8372d0c353',
+     * });
+     * ```
+     */
+    scanTrigger(params, options) {
+        const { zone_id } = params;
+        return this._client.post(`/zones/${zone_id}/dns_records/scan/trigger`, options);
+    }
 }
 class RecordResponsesV4PagePaginationArray extends V4PagePaginationArray {
 }
+class RecordResponsesSinglePage extends SinglePage {
+}
 Records.RecordResponsesV4PagePaginationArray = RecordResponsesV4PagePaginationArray;
+Records.RecordResponsesSinglePage = RecordResponsesSinglePage;
 //# sourceMappingURL=records.mjs.map
 ;// CONCATENATED MODULE: ./node_modules/cloudflare/resources/dns/analytics/reports/bytimes.mjs
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
@@ -40823,6 +41030,7 @@ class DNS extends APIResource {
 DNS.DNSSECResource = DNSSECResource;
 DNS.Records = Records;
 DNS.RecordResponsesV4PagePaginationArray = RecordResponsesV4PagePaginationArray;
+DNS.RecordResponsesSinglePage = RecordResponsesSinglePage;
 DNS.Settings = settings_settings_Settings;
 DNS.Analytics = analytics_Analytics;
 DNS.ZoneTransfers = ZoneTransfers;
@@ -41796,7 +42004,6 @@ class dns_DNS extends APIResource {
      * ```ts
      * const settings = await client.emailRouting.dns.create({
      *   zone_id: '023e105f4ecef8ad9ca31a8372d0c353',
-     *   name: 'example.net',
      * });
      * ```
      */
@@ -41832,7 +42039,6 @@ class dns_DNS extends APIResource {
      * ```ts
      * const settings = await client.emailRouting.dns.edit({
      *   zone_id: '023e105f4ecef8ad9ca31a8372d0c353',
-     *   name: 'example.net',
      * });
      * ```
      */
@@ -44218,8 +44424,16 @@ class PageRules extends APIResource {
      * ```ts
      * const pageRule = await client.pageRules.create({
      *   zone_id: '023e105f4ecef8ad9ca31a8372d0c353',
-     *   actions: [{}],
-     *   targets: [{}],
+     *   actions: [{ id: 'browser_check' }],
+     *   targets: [
+     *     {
+     *       constraint: {
+     *         operator: 'matches',
+     *         value: '*example.com/images/*',
+     *       },
+     *       target: 'url',
+     *     },
+     *   ],
      * });
      * ```
      */
@@ -44237,8 +44451,16 @@ class PageRules extends APIResource {
      *   '023e105f4ecef8ad9ca31a8372d0c353',
      *   {
      *     zone_id: '023e105f4ecef8ad9ca31a8372d0c353',
-     *     actions: [{}],
-     *     targets: [{}],
+     *     actions: [{ id: 'browser_check' }],
+     *     targets: [
+     *       {
+     *         constraint: {
+     *           operator: 'matches',
+     *           value: '*example.com/images/*',
+     *         },
+     *         target: 'url',
+     *       },
+     *     ],
      *   },
      * );
      * ```
@@ -45540,14 +45762,15 @@ class Versions extends APIResource {
      * ```ts
      * const version =
      *   await client.workers.beta.workers.versions.create(
-     *     '023e105f4ecef8ad9ca31a8372d0c353',
+     *     'worker_id',
      *     { account_id: '023e105f4ecef8ad9ca31a8372d0c353' },
      *   );
      * ```
      */
     create(workerId, params, options) {
-        const { account_id, ...body } = params;
+        const { account_id, deploy, ...body } = params;
         return this._client.post(`/accounts/${account_id}/workers/workers/${workerId}/versions`, {
+            query: { deploy },
             body,
             ...options,
         })._thenUnwrap((obj) => obj.result);
@@ -45559,7 +45782,7 @@ class Versions extends APIResource {
      * ```ts
      * // Automatically fetches more pages as needed.
      * for await (const version of client.workers.beta.workers.versions.list(
-     *   '023e105f4ecef8ad9ca31a8372d0c353',
+     *   'worker_id',
      *   { account_id: '023e105f4ecef8ad9ca31a8372d0c353' },
      * )) {
      *   // ...
@@ -45577,8 +45800,8 @@ class Versions extends APIResource {
      * ```ts
      * const version =
      *   await client.workers.beta.workers.versions.delete(
-     *     '023e105f4ecef8ad9ca31a8372d0c353',
-     *     '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+     *     'worker_id',
+     *     'version_id',
      *     { account_id: '023e105f4ecef8ad9ca31a8372d0c353' },
      *   );
      * ```
@@ -45594,8 +45817,8 @@ class Versions extends APIResource {
      * ```ts
      * const version =
      *   await client.workers.beta.workers.versions.get(
-     *     '023e105f4ecef8ad9ca31a8372d0c353',
-     *     '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+     *     'worker_id',
+     *     'version_id',
      *     { account_id: '023e105f4ecef8ad9ca31a8372d0c353' },
      *   );
      * ```
@@ -45639,12 +45862,15 @@ class Workers extends APIResource {
         return this._client.post(`/accounts/${account_id}/workers/workers`, { body, ...options })._thenUnwrap((obj) => obj.result);
     }
     /**
-     * Update an existing Worker.
+     * Perform a complete replacement of a Worker, where omitted properties are set to
+     * their default values. This is the exact same as the Create Worker endpoint, but
+     * operates on an existing Worker. To perform a partial update instead, use the
+     * Edit Worker endpoint.
      *
      * @example
      * ```ts
      * const worker = await client.workers.beta.workers.update(
-     *   '023e105f4ecef8ad9ca31a8372d0c353',
+     *   'worker_id',
      *   {
      *     account_id: '023e105f4ecef8ad9ca31a8372d0c353',
      *     name: 'my-worker',
@@ -45685,7 +45911,7 @@ class Workers extends APIResource {
      * @example
      * ```ts
      * const worker = await client.workers.beta.workers.delete(
-     *   '023e105f4ecef8ad9ca31a8372d0c353',
+     *   'worker_id',
      *   { account_id: '023e105f4ecef8ad9ca31a8372d0c353' },
      * );
      * ```
@@ -45695,12 +45921,40 @@ class Workers extends APIResource {
         return this._client.delete(`/accounts/${account_id}/workers/workers/${workerId}`, options);
     }
     /**
+     * Perform a partial update on a Worker, where omitted properties are left
+     * unchanged from their current values.
+     *
+     * @example
+     * ```ts
+     * const worker = await client.workers.beta.workers.edit(
+     *   'worker_id',
+     *   {
+     *     account_id: '023e105f4ecef8ad9ca31a8372d0c353',
+     *     logpush: true,
+     *     name: 'my-worker',
+     *     observability: {},
+     *     subdomain: {},
+     *     tags: ['my-team', 'my-public-api'],
+     *     tail_consumers: [{ name: 'my-tail-consumer' }],
+     *   },
+     * );
+     * ```
+     */
+    edit(workerId, params, options) {
+        const { account_id, ...body } = params;
+        return this._client.patch(`/accounts/${account_id}/workers/workers/${workerId}`, {
+            body,
+            ...options,
+            headers: { 'Content-Type': 'application/merge-patch+json', ...options?.headers },
+        })._thenUnwrap((obj) => obj.result);
+    }
+    /**
      * Get details about a specific Worker.
      *
      * @example
      * ```ts
      * const worker = await client.workers.beta.workers.get(
-     *   '023e105f4ecef8ad9ca31a8372d0c353',
+     *   'worker_id',
      *   { account_id: '023e105f4ecef8ad9ca31a8372d0c353' },
      * );
      * ```
@@ -45842,6 +46096,7 @@ class Content extends APIResource {
         return this._client.put(`/accounts/${account_id}/workers/scripts/${scriptName}/content`, multipartFormRequestOptions({
             body,
             ...options,
+            __multipartSyntax: 'json',
             headers: {
                 ...(cfWorkerBodyPart != null ? { 'CF-WORKER-BODY-PART': cfWorkerBodyPart } : undefined),
                 ...(cfWorkerMainModulePart != null ?
@@ -46028,7 +46283,7 @@ class ScriptAndVersionSettings extends APIResource {
      */
     edit(scriptName, params, options) {
         const { account_id, ...body } = params;
-        return this._client.patch(`/accounts/${account_id}/workers/scripts/${scriptName}/settings`, multipartFormRequestOptions({ body, ...options }))._thenUnwrap((obj) => obj.result);
+        return this._client.patch(`/accounts/${account_id}/workers/scripts/${scriptName}/settings`, multipartFormRequestOptions({ body, ...options, __multipartSyntax: 'json' }))._thenUnwrap((obj) => obj.result);
     }
     /**
      * Get metadata and config, such as bindings or usage model.
@@ -46107,8 +46362,11 @@ class Secrets extends APIResource {
      * ```
      */
     delete(scriptName, secretName, params, options) {
-        const { account_id } = params;
-        return this._client.delete(`/accounts/${account_id}/workers/scripts/${scriptName}/secrets/${secretName}`, options)._thenUnwrap((obj) => obj.result);
+        const { account_id, url_encoded } = params;
+        return this._client.delete(`/accounts/${account_id}/workers/scripts/${scriptName}/secrets/${secretName}`, {
+            query: { url_encoded },
+            ...options,
+        })._thenUnwrap((obj) => obj.result);
     }
     /**
      * Get a given secret binding (value omitted) on a script.
@@ -46123,8 +46381,11 @@ class Secrets extends APIResource {
      * ```
      */
     get(scriptName, secretName, params, options) {
-        const { account_id } = params;
-        return this._client.get(`/accounts/${account_id}/workers/scripts/${scriptName}/secrets/${secretName}`, options)._thenUnwrap((obj) => obj.result);
+        const { account_id, ...query } = params;
+        return this._client.get(`/accounts/${account_id}/workers/scripts/${scriptName}/secrets/${secretName}`, {
+            query,
+            ...options,
+        })._thenUnwrap((obj) => obj.result);
     }
 }
 class SecretListResponsesSinglePage extends SinglePage {
@@ -46523,6 +46784,23 @@ class Scripts extends APIResource {
             ...options,
             headers: { Accept: 'application/javascript', ...options?.headers },
         });
+    }
+    /**
+     * Search for Workers in an account.
+     *
+     * @example
+     * ```ts
+     * const response = await client.workers.scripts.search({
+     *   account_id: '023e105f4ecef8ad9ca31a8372d0c353',
+     * });
+     * ```
+     */
+    search(params, options) {
+        const { account_id, ...query } = params;
+        return this._client.get(`/accounts/${account_id}/workers/scripts-search`, {
+            query,
+            ...options,
+        })._thenUnwrap((obj) => obj.result);
     }
 }
 class ScriptsSinglePage extends SinglePage {
@@ -50364,7 +50642,9 @@ class keys_Keys extends APIResource {
 
 class Stats extends APIResource {
     /**
-     * Fetch usage statistics details for Cloudflare Images.
+     * Fetch image statistics details for Cloudflare Images. The returned statistics
+     * detail storage usage, including the current image count vs this account's
+     * allowance.
      *
      * @example
      * ```ts
@@ -51047,21 +51327,6 @@ domains_domains_Domains.Bulks = Bulks;
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
 class Downloads extends APIResource {
-    /**
-     * Download indicator feed data
-     *
-     * @example
-     * ```ts
-     * const download =
-     *   await client.intel.indicatorFeeds.downloads.get(12, {
-     *     account_id: '023e105f4ecef8ad9ca31a8372d0c353',
-     *   });
-     * ```
-     */
-    get(feedId, params, options) {
-        const { account_id } = params;
-        return this._client.get(`/accounts/${account_id}/intel/indicator_feeds/${feedId}/download`, options)._thenUnwrap((obj) => obj.result);
-    }
 }
 //# sourceMappingURL=downloads.mjs.map
 ;// CONCATENATED MODULE: ./node_modules/cloudflare/resources/intel/indicator-feeds/permissions.mjs
@@ -52446,7 +52711,7 @@ class PCAPs extends APIResource {
         return this._client.get(`/accounts/${account_id}/pcaps/${pcapId}`, options)._thenUnwrap((obj) => obj.result);
     }
     /**
-     * Stop full PCAP
+     * Stop full PCAP.
      *
      * @example
      * ```ts
@@ -54716,6 +54981,9 @@ class Items extends APIResource {
      * This operation is asynchronous. To get current the operation status, invoke the
      * `Get bulk operation status` endpoint with the returned `operation_id`.
      *
+     * There is a limit of 1 pending bulk operation per account. If an outstanding bulk
+     * operation is in progress, the request will be rejected.
+     *
      * @example
      * ```ts
      * const item = await client.rules.lists.items.create(
@@ -54740,6 +55008,9 @@ class Items extends APIResource {
      *
      * This operation is asynchronous. To get current the operation status, invoke the
      * `Get bulk operation status` endpoint with the returned `operation_id`.
+     *
+     * There is a limit of 1 pending bulk operation per account. If an outstanding bulk
+     * operation is in progress, the request will be rejected.
      *
      * @example
      * ```ts
@@ -54782,6 +55053,9 @@ class Items extends APIResource {
      *
      * This operation is asynchronous. To get current the operation status, invoke the
      * `Get bulk operation status` endpoint with the returned `operation_id`.
+     *
+     * There is a limit of 1 pending bulk operation per account. If an outstanding bulk
+     * operation is in progress, the request will be rejected.
      *
      * @example
      * ```ts
@@ -55109,7 +55383,8 @@ class DirectUpload extends APIResource {
 
 class downloads_Downloads extends APIResource {
     /**
-     * Creates a download for a video when a video is ready to view.
+     * Creates a download for a video when a video is ready to view. Use
+     * `/downloads/{download_type}` instead for type-specific downloads.
      *
      * @example
      * ```ts
@@ -55130,7 +55405,8 @@ class downloads_Downloads extends APIResource {
         })._thenUnwrap((obj) => obj.result);
     }
     /**
-     * Delete the downloads for a video.
+     * Delete the downloads for a video. Use `/downloads/{download_type}` instead for
+     * type-specific downloads.
      *
      * @example
      * ```ts
@@ -57652,6 +57928,7 @@ class content_Content extends APIResource {
         return this._client.put(`/accounts/${account_id}/workers/dispatch/namespaces/${dispatchNamespace}/scripts/${scriptName}/content`, multipartFormRequestOptions({
             body,
             ...options,
+            __multipartSyntax: 'json',
             headers: {
                 ...(cfWorkerBodyPart != null ? { 'CF-WORKER-BODY-PART': cfWorkerBodyPart } : undefined),
                 ...(cfWorkerMainModulePart != null ?
@@ -57745,8 +58022,8 @@ class secrets_Secrets extends APIResource {
      * ```
      */
     delete(dispatchNamespace, scriptName, secretName, params, options) {
-        const { account_id } = params;
-        return this._client.delete(`/accounts/${account_id}/workers/dispatch/namespaces/${dispatchNamespace}/scripts/${scriptName}/secrets/${secretName}`, options)._thenUnwrap((obj) => obj.result);
+        const { account_id, url_encoded } = params;
+        return this._client.delete(`/accounts/${account_id}/workers/dispatch/namespaces/${dispatchNamespace}/scripts/${scriptName}/secrets/${secretName}`, { query: { url_encoded }, ...options })._thenUnwrap((obj) => obj.result);
     }
     /**
      * Get a given secret binding (value omitted) on a script uploaded to a Workers for
@@ -57764,8 +58041,8 @@ class secrets_Secrets extends APIResource {
      * ```
      */
     get(dispatchNamespace, scriptName, secretName, params, options) {
-        const { account_id } = params;
-        return this._client.get(`/accounts/${account_id}/workers/dispatch/namespaces/${dispatchNamespace}/scripts/${scriptName}/secrets/${secretName}`, options)._thenUnwrap((obj) => obj.result);
+        const { account_id, ...query } = params;
+        return this._client.get(`/accounts/${account_id}/workers/dispatch/namespaces/${dispatchNamespace}/scripts/${scriptName}/secrets/${secretName}`, { query, ...options })._thenUnwrap((obj) => obj.result);
     }
 }
 class secrets_SecretListResponsesSinglePage extends SinglePage {
@@ -57792,7 +58069,7 @@ class namespaces_scripts_settings_Settings extends APIResource {
      */
     edit(dispatchNamespace, scriptName, params, options) {
         const { account_id, ...body } = params;
-        return this._client.patch(`/accounts/${account_id}/workers/dispatch/namespaces/${dispatchNamespace}/scripts/${scriptName}/settings`, multipartFormRequestOptions({ body, ...options }))._thenUnwrap((obj) => obj.result);
+        return this._client.patch(`/accounts/${account_id}/workers/dispatch/namespaces/${dispatchNamespace}/scripts/${scriptName}/settings`, multipartFormRequestOptions({ body, ...options, __multipartSyntax: 'json' }))._thenUnwrap((obj) => obj.result);
     }
     /**
      * Get script settings from a script uploaded to a Workers for Platforms namespace.
@@ -57829,7 +58106,7 @@ class Tags extends APIResource {
      *   'this-is_my_script-01',
      *   {
      *     account_id: '023e105f4ecef8ad9ca31a8372d0c353',
-     *     body: ['my-tag'],
+     *     body: ['my-team', 'my-public-api'],
      *   },
      * )) {
      *   // ...
@@ -58893,8 +59170,11 @@ class ServiceTokens extends APIResource {
      * ```
      */
     rotate(serviceTokenId, params, options) {
-        const { account_id } = params;
-        return this._client.post(`/accounts/${account_id}/access/service_tokens/${serviceTokenId}/rotate`, options)._thenUnwrap((obj) => obj.result);
+        const { account_id, ...body } = params;
+        return this._client.post(`/accounts/${account_id}/access/service_tokens/${serviceTokenId}/rotate`, {
+            body,
+            ...options,
+        })._thenUnwrap((obj) => obj.result);
     }
 }
 class ServiceTokensV4PagePaginationArray extends V4PagePaginationArray {
@@ -60390,8 +60670,11 @@ class devices_Devices extends APIResource {
      * ```
      */
     get(deviceId, params, options) {
-        const { account_id } = params;
-        return this._client.get(`/accounts/${account_id}/devices/physical-devices/${deviceId}`, options)._thenUnwrap((obj) => obj.result);
+        const { account_id, ...query } = params;
+        return this._client.get(`/accounts/${account_id}/devices/physical-devices/${deviceId}`, {
+            query,
+            ...options,
+        })._thenUnwrap((obj) => obj.result);
     }
     /**
      * Revokes all WARP registrations associated with the specified device.
@@ -60760,8 +61043,11 @@ class Registrations extends APIResource {
      * ```
      */
     get(registrationId, params, options) {
-        const { account_id } = params;
-        return this._client.get(`/accounts/${account_id}/devices/registrations/${registrationId}`, options)._thenUnwrap((obj) => obj.result);
+        const { account_id, ...query } = params;
+        return this._client.get(`/accounts/${account_id}/devices/registrations/${registrationId}`, {
+            query,
+            ...options,
+        })._thenUnwrap((obj) => obj.result);
     }
     /**
      * Revokes a list of WARP registrations.
@@ -63576,7 +63862,7 @@ DLP.EntryListResponsesSinglePage = EntryListResponsesSinglePage;
 
 class AppTypes extends APIResource {
     /**
-     * Fetches all application and application type mappings.
+     * List all application and application type mappings.
      *
      * @example
      * ```ts
@@ -63602,7 +63888,7 @@ AppTypes.AppTypesSinglePage = AppTypesSinglePage;
 
 class AuditSSHSettings extends APIResource {
     /**
-     * Updates Zero Trust Audit SSH and SSH with Access for Infrastructure settings for
+     * Update Zero Trust Audit SSH and SSH with Access for Infrastructure settings for
      * an account.
      *
      * @example
@@ -63623,8 +63909,8 @@ class AuditSSHSettings extends APIResource {
         })._thenUnwrap((obj) => obj.result);
     }
     /**
-     * Gets all Zero Trust Audit SSH and SSH with Access for Infrastructure settings
-     * for an account.
+     * Retrieve all Zero Trust Audit SSH and SSH with Access for Infrastructure
+     * settings for an account.
      *
      * @example
      * ```ts
@@ -63639,8 +63925,8 @@ class AuditSSHSettings extends APIResource {
         return this._client.get(`/accounts/${account_id}/gateway/audit_ssh_settings`, options)._thenUnwrap((obj) => obj.result);
     }
     /**
-     * Rotates the SSH account seed that is used for generating the host key identity
-     * when connecting through the Cloudflare SSH Proxy.
+     * Rotate the SSH account seed that generates the host key identity when connecting
+     * through the Cloudflare SSH Proxy.
      *
      * @example
      * ```ts
@@ -63662,7 +63948,7 @@ class AuditSSHSettings extends APIResource {
 
 class Categories extends APIResource {
     /**
-     * Fetches a list of all categories.
+     * List all categories.
      *
      * @example
      * ```ts
@@ -63689,7 +63975,7 @@ Categories.CategoriesSinglePage = CategoriesSinglePage;
 
 class gateway_certificates_Certificates extends APIResource {
     /**
-     * Creates a new Zero Trust certificate.
+     * Create a new Zero Trust certificate.
      *
      * @example
      * ```ts
@@ -63707,7 +63993,7 @@ class gateway_certificates_Certificates extends APIResource {
         })._thenUnwrap((obj) => obj.result);
     }
     /**
-     * Fetches all Zero Trust certificates for an account.
+     * List all Zero Trust certificates for an account.
      *
      * @example
      * ```ts
@@ -63724,8 +64010,8 @@ class gateway_certificates_Certificates extends APIResource {
         return this._client.getAPIList(`/accounts/${account_id}/gateway/certificates`, certificates_CertificateListResponsesSinglePage, options);
     }
     /**
-     * Deletes a gateway-managed Zero Trust certificate. A certificate must be
-     * deactivated from the edge (inactive) before it is deleted.
+     * Delete a gateway-managed Zero Trust certificate. You must deactivate the
+     * certificate from the edge (inactive) before deleting it.
      *
      * @example
      * ```ts
@@ -63741,7 +64027,7 @@ class gateway_certificates_Certificates extends APIResource {
         return this._client.delete(`/accounts/${account_id}/gateway/certificates/${certificateId}`, options)._thenUnwrap((obj) => obj.result);
     }
     /**
-     * Binds a single Zero Trust certificate to the edge.
+     * Bind a single Zero Trust certificate to the edge.
      *
      * @example
      * ```ts
@@ -63763,7 +64049,7 @@ class gateway_certificates_Certificates extends APIResource {
         })._thenUnwrap((obj) => obj.result);
     }
     /**
-     * Unbinds a single Zero Trust certificate from the edge.
+     * Unbind a single Zero Trust certificate from the edge.
      *
      * @example
      * ```ts
@@ -63785,7 +64071,7 @@ class gateway_certificates_Certificates extends APIResource {
         })._thenUnwrap((obj) => obj.result);
     }
     /**
-     * Fetches a single Zero Trust certificate.
+     * Get a single Zero Trust certificate.
      *
      * @example
      * ```ts
@@ -63811,7 +64097,7 @@ gateway_certificates_Certificates.CertificateListResponsesSinglePage = certifica
 
 class Locations extends APIResource {
     /**
-     * Creates a new Zero Trust Gateway location.
+     * Create a new Zero Trust Gateway location.
      *
      * @example
      * ```ts
@@ -63830,7 +64116,7 @@ class Locations extends APIResource {
         })._thenUnwrap((obj) => obj.result);
     }
     /**
-     * Updates a configured Zero Trust Gateway location.
+     * Update a configured Zero Trust Gateway location.
      *
      * @example
      * ```ts
@@ -63852,7 +64138,7 @@ class Locations extends APIResource {
         })._thenUnwrap((obj) => obj.result);
     }
     /**
-     * Fetches Zero Trust Gateway locations for an account.
+     * List Zero Trust Gateway locations for an account.
      *
      * @example
      * ```ts
@@ -63869,7 +64155,7 @@ class Locations extends APIResource {
         return this._client.getAPIList(`/accounts/${account_id}/gateway/locations`, LocationsSinglePage, options);
     }
     /**
-     * Deletes a configured Zero Trust Gateway location.
+     * Delete a configured Zero Trust Gateway location.
      *
      * @example
      * ```ts
@@ -63885,7 +64171,7 @@ class Locations extends APIResource {
         return this._client.delete(`/accounts/${account_id}/gateway/locations/${locationId}`, options)._thenUnwrap((obj) => obj.result);
     }
     /**
-     * Fetches a single Zero Trust Gateway location.
+     * Get a single Zero Trust Gateway location.
      *
      * @example
      * ```ts
@@ -63910,7 +64196,7 @@ Locations.LocationsSinglePage = LocationsSinglePage;
 
 class Logging extends APIResource {
     /**
-     * Updates logging settings for the current Zero Trust account.
+     * Update logging settings for the current Zero Trust account.
      *
      * @example
      * ```ts
@@ -63925,7 +64211,7 @@ class Logging extends APIResource {
         return this._client.put(`/accounts/${account_id}/gateway/logging`, { body, ...options })._thenUnwrap((obj) => obj.result);
     }
     /**
-     * Fetches the current logging settings for Zero Trust account.
+     * Retrieve the current logging settings for the Zero Trust account.
      *
      * @example
      * ```ts
@@ -63947,7 +64233,7 @@ class Logging extends APIResource {
 
 class ProxyEndpoints extends APIResource {
     /**
-     * Creates a new Zero Trust Gateway proxy endpoint.
+     * Create a new Zero Trust Gateway proxy endpoint.
      *
      * @example
      * ```ts
@@ -63967,7 +64253,7 @@ class ProxyEndpoints extends APIResource {
         })._thenUnwrap((obj) => obj.result);
     }
     /**
-     * Fetches all Zero Trust Gateway proxy endpoints for an account.
+     * List all Zero Trust Gateway proxy endpoints for an account.
      *
      * @example
      * ```ts
@@ -63982,7 +64268,7 @@ class ProxyEndpoints extends APIResource {
         return this._client.get(`/accounts/${account_id}/gateway/proxy_endpoints`, options)._thenUnwrap((obj) => obj.result);
     }
     /**
-     * Deletes a configured Zero Trust Gateway proxy endpoint.
+     * Delete a configured Zero Trust Gateway proxy endpoint.
      *
      * @example
      * ```ts
@@ -63998,7 +64284,7 @@ class ProxyEndpoints extends APIResource {
         return this._client.delete(`/accounts/${account_id}/gateway/proxy_endpoints/${proxyEndpointId}`, options)._thenUnwrap((obj) => obj.result);
     }
     /**
-     * Updates a configured Zero Trust Gateway proxy endpoint.
+     * Update a configured Zero Trust Gateway proxy endpoint.
      *
      * @example
      * ```ts
@@ -64017,7 +64303,7 @@ class ProxyEndpoints extends APIResource {
         })._thenUnwrap((obj) => obj.result);
     }
     /**
-     * Fetches a single Zero Trust Gateway proxy endpoint.
+     * Get a single Zero Trust Gateway proxy endpoint.
      *
      * @example
      * ```ts
@@ -64045,7 +64331,7 @@ ProxyEndpoints.ProxyEndpointsSinglePage = ProxyEndpointsSinglePage;
 
 class gateway_rules_Rules extends APIResource {
     /**
-     * Creates a new Zero Trust Gateway rule.
+     * Create a new Zero Trust Gateway rule.
      *
      * @example
      * ```ts
@@ -64062,7 +64348,7 @@ class gateway_rules_Rules extends APIResource {
         return this._client.post(`/accounts/${account_id}/gateway/rules`, { body, ...options })._thenUnwrap((obj) => obj.result);
     }
     /**
-     * Updates a configured Zero Trust Gateway rule.
+     * Update a configured Zero Trust Gateway rule.
      *
      * @example
      * ```ts
@@ -64085,7 +64371,7 @@ class gateway_rules_Rules extends APIResource {
         })._thenUnwrap((obj) => obj.result);
     }
     /**
-     * Fetches the Zero Trust Gateway rules for an account.
+     * List Zero Trust Gateway rules for an account.
      *
      * @example
      * ```ts
@@ -64102,7 +64388,7 @@ class gateway_rules_Rules extends APIResource {
         return this._client.getAPIList(`/accounts/${account_id}/gateway/rules`, GatewayRulesSinglePage, options);
     }
     /**
-     * Deletes a Zero Trust Gateway rule.
+     * Delete a Zero Trust Gateway rule.
      *
      * @example
      * ```ts
@@ -64117,7 +64403,7 @@ class gateway_rules_Rules extends APIResource {
         return this._client.delete(`/accounts/${account_id}/gateway/rules/${ruleId}`, options)._thenUnwrap((obj) => obj.result);
     }
     /**
-     * Fetches a single Zero Trust Gateway rule.
+     * Get a single Zero Trust Gateway rule.
      *
      * @example
      * ```ts
@@ -64133,11 +64419,9 @@ class gateway_rules_Rules extends APIResource {
         return this._client.get(`/accounts/${account_id}/gateway/rules/${ruleId}`, options)._thenUnwrap((obj) => obj.result);
     }
     /**
-     * Resets the expiration of a Zero Trust Gateway Rule if its duration has elapsed
-     * and it has a default duration.
-     *
-     * The Zero Trust Gateway Rule must have values for both `expiration.expires_at`
-     * and `expiration.duration`.
+     * Resets the expiration of a Zero Trust Gateway Rule if its duration elapsed and
+     * it has a default duration. The Zero Trust Gateway Rule must have values for both
+     * `expiration.expires_at` and `expiration.duration`.
      *
      * @example
      * ```ts
@@ -64162,7 +64446,7 @@ gateway_rules_Rules.GatewayRulesSinglePage = GatewayRulesSinglePage;
 
 class CustomCertificate extends APIResource {
     /**
-     * Fetches the current Zero Trust certificate configuration.
+     * Retrieve the current Zero Trust certificate configuration.
      *
      * @deprecated
      */
@@ -64183,7 +64467,7 @@ class configurations_Configurations extends APIResource {
         this.customCertificate = new CustomCertificate(this._client);
     }
     /**
-     * Updates the current Zero Trust account configuration.
+     * Update the current Zero Trust account configuration.
      *
      * @example
      * ```ts
@@ -64201,11 +64485,11 @@ class configurations_Configurations extends APIResource {
         })._thenUnwrap((obj) => obj.result);
     }
     /**
-     * Patches the current Zero Trust account configuration. This endpoint can update a
-     * single subcollection of settings such as `antivirus`, `tls_decrypt`,
-     * `activity_log`, `block_page`, `browser_isolation`, `fips`, `body_scanning`, or
-     * `certificate`, without updating the entire configuration object. Returns an
-     * error if any collection of settings is not properly configured.
+     * Update (PATCH) a single subcollection of settings such as `antivirus`,
+     * `tls_decrypt`, `activity_log`, `block_page`, `browser_isolation`, `fips`,
+     * `body_scanning`, or `certificate` without updating the entire configuration
+     * object. This endpoint returns an error if any settings collection lacks proper
+     * configuration.
      *
      * @example
      * ```ts
@@ -64223,7 +64507,7 @@ class configurations_Configurations extends APIResource {
         })._thenUnwrap((obj) => obj.result);
     }
     /**
-     * Fetches the current Zero Trust account configuration.
+     * Retrieve the current Zero Trust account configuration.
      *
      * @example
      * ```ts
@@ -64246,7 +64530,7 @@ configurations_Configurations.CustomCertificate = CustomCertificate;
 
 class items_Items extends APIResource {
     /**
-     * Fetches all items in a single Zero Trust list.
+     * Fetch all items in a single Zero Trust list.
      *
      * @example
      * ```ts
@@ -64297,7 +64581,7 @@ class lists_Lists extends APIResource {
     }
     /**
      * Updates a configured Zero Trust list. Skips updating list items if not included
-     * in the payload.
+     * in the payload. A non empty list items will overwrite the existing list.
      *
      * @example
      * ```ts
@@ -64319,7 +64603,7 @@ class lists_Lists extends APIResource {
         })._thenUnwrap((obj) => obj.result);
     }
     /**
-     * Fetches all Zero Trust lists for an account.
+     * Fetch all Zero Trust lists for an account.
      *
      * @example
      * ```ts
@@ -64373,7 +64657,7 @@ class lists_Lists extends APIResource {
         })._thenUnwrap((obj) => obj.result);
     }
     /**
-     * Fetches a single Zero Trust list.
+     * Fetch a single Zero Trust list.
      *
      * @example
      * ```ts
@@ -64433,7 +64717,7 @@ class Gateway extends APIResource {
         this.certificates = new gateway_certificates_Certificates(this._client);
     }
     /**
-     * Creates a Zero Trust account with an existing Cloudflare account.
+     * Create a Zero Trust account for an existing Cloudflare account.
      *
      * @example
      * ```ts
@@ -64447,7 +64731,7 @@ class Gateway extends APIResource {
         return this._client.post(`/accounts/${account_id}/gateway`, options)._thenUnwrap((obj) => obj.result);
     }
     /**
-     * Gets information about the current Zero Trust account.
+     * Retrieve information about the current Zero Trust account.
      *
      * @example
      * ```ts
@@ -64708,6 +64992,102 @@ IdentityProviders.IdentityProviderListResponsesV4PagePaginationArray =
     IdentityProviderListResponsesV4PagePaginationArray;
 IdentityProviders.SCIM = scim_SCIM;
 //# sourceMappingURL=identity-providers.mjs.map
+;// CONCATENATED MODULE: ./node_modules/cloudflare/resources/zero-trust/networks/hostname-routes.mjs
+// File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+
+
+class HostnameRoutes extends APIResource {
+    /**
+     * Create a hostname route.
+     *
+     * @example
+     * ```ts
+     * const hostnameRoute =
+     *   await client.zeroTrust.networks.hostnameRoutes.create({
+     *     account_id: '699d98642c564d2e855e9661899b7252',
+     *   });
+     * ```
+     */
+    create(params, options) {
+        const { account_id, ...body } = params;
+        return this._client.post(`/accounts/${account_id}/zerotrust/routes/hostname`, {
+            body,
+            ...options,
+        })._thenUnwrap((obj) => obj.result);
+    }
+    /**
+     * Lists and filters hostname routes in an account.
+     *
+     * @example
+     * ```ts
+     * // Automatically fetches more pages as needed.
+     * for await (const hostnameRoute of client.zeroTrust.networks.hostnameRoutes.list(
+     *   { account_id: '699d98642c564d2e855e9661899b7252' },
+     * )) {
+     *   // ...
+     * }
+     * ```
+     */
+    list(params, options) {
+        const { account_id, ...query } = params;
+        return this._client.getAPIList(`/accounts/${account_id}/zerotrust/routes/hostname`, HostnameRoutesV4PagePaginationArray, { query, ...options });
+    }
+    /**
+     * Delete a hostname route.
+     *
+     * @example
+     * ```ts
+     * const hostnameRoute =
+     *   await client.zeroTrust.networks.hostnameRoutes.delete(
+     *     'f70ff985-a4ef-4643-bbbc-4a0ed4fc8415',
+     *     { account_id: '699d98642c564d2e855e9661899b7252' },
+     *   );
+     * ```
+     */
+    delete(hostnameRouteId, params, options) {
+        const { account_id } = params;
+        return this._client.delete(`/accounts/${account_id}/zerotrust/routes/hostname/${hostnameRouteId}`, options)._thenUnwrap((obj) => obj.result);
+    }
+    /**
+     * Updates a hostname route.
+     *
+     * @example
+     * ```ts
+     * const hostnameRoute =
+     *   await client.zeroTrust.networks.hostnameRoutes.edit(
+     *     'f70ff985-a4ef-4643-bbbc-4a0ed4fc8415',
+     *     { account_id: '699d98642c564d2e855e9661899b7252' },
+     *   );
+     * ```
+     */
+    edit(hostnameRouteId, params, options) {
+        const { account_id, ...body } = params;
+        return this._client.patch(`/accounts/${account_id}/zerotrust/routes/hostname/${hostnameRouteId}`, {
+            body,
+            ...options,
+        })._thenUnwrap((obj) => obj.result);
+    }
+    /**
+     * Get a hostname route.
+     *
+     * @example
+     * ```ts
+     * const hostnameRoute =
+     *   await client.zeroTrust.networks.hostnameRoutes.get(
+     *     'f70ff985-a4ef-4643-bbbc-4a0ed4fc8415',
+     *     { account_id: '699d98642c564d2e855e9661899b7252' },
+     *   );
+     * ```
+     */
+    get(hostnameRouteId, params, options) {
+        const { account_id } = params;
+        return this._client.get(`/accounts/${account_id}/zerotrust/routes/hostname/${hostnameRouteId}`, options)._thenUnwrap((obj) => obj.result);
+    }
+}
+class HostnameRoutesV4PagePaginationArray extends V4PagePaginationArray {
+}
+HostnameRoutes.HostnameRoutesV4PagePaginationArray = HostnameRoutesV4PagePaginationArray;
+//# sourceMappingURL=hostname-routes.mjs.map
 ;// CONCATENATED MODULE: ./node_modules/cloudflare/resources/zero-trust/networks/virtual-networks.mjs
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
@@ -65053,12 +65433,15 @@ subnets_Subnets.CloudflareSource = CloudflareSource;
 
 
 
+
+
 class networks_networks_Networks extends APIResource {
     constructor() {
         super(...arguments);
         this.routes = new routes_routes_Routes(this._client);
         this.virtualNetworks = new VirtualNetworks(this._client);
         this.subnets = new subnets_Subnets(this._client);
+        this.hostnameRoutes = new HostnameRoutes(this._client);
     }
 }
 networks_networks_Networks.Routes = routes_routes_Routes;
@@ -65067,6 +65450,8 @@ networks_networks_Networks.VirtualNetworks = VirtualNetworks;
 networks_networks_Networks.VirtualNetworksSinglePage = VirtualNetworksSinglePage;
 networks_networks_Networks.Subnets = subnets_Subnets;
 networks_networks_Networks.SubnetListResponsesV4PagePaginationArray = SubnetListResponsesV4PagePaginationArray;
+networks_networks_Networks.HostnameRoutes = HostnameRoutes;
+networks_networks_Networks.HostnameRoutesV4PagePaginationArray = HostnameRoutesV4PagePaginationArray;
 //# sourceMappingURL=networks.mjs.map
 ;// CONCATENATED MODULE: ./node_modules/cloudflare/resources/zero-trust/organizations/doh.mjs
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
@@ -67120,7 +67505,7 @@ class ToMarkdown extends APIResource {
      * ```
      */
     create(body, params, options) {
-        const { account_id } = params ?? {};
+        const { account_id } = params;
         return this._client.getAPIList(`/accounts/${account_id}/ai/tomarkdown`, ToMarkdownCreateResponsesSinglePage, {
             body: body,
             method: 'post',
@@ -68859,6 +69244,12 @@ class ASNs extends APIResource {
         }
         return this._client.get('/radar/entities/asns', { query, ...options })._thenUnwrap((obj) => obj.result);
     }
+    asSet(asn, query = {}, options) {
+        if (isRequestOptions(query)) {
+            return this.asSet(asn, {}, query);
+        }
+        return this._client.get(`/radar/entities/asns/${asn}/as_set`, { query, ...options })._thenUnwrap((obj) => obj.result);
+    }
     get(asn, query = {}, options) {
         if (isRequestOptions(query)) {
             return this.get(asn, {}, query);
@@ -70039,6 +70430,7 @@ class BotManagement extends APIResource {
      * const botManagement = await client.botManagement.update({
      *   zone_id: '023e105f4ecef8ad9ca31a8372d0c353',
      *   ai_bots_protection: 'disabled',
+     *   cf_robots_variant: 'off',
      *   crawler_protection: 'disabled',
      *   enable_js: true,
      *   fight_mode: true,
@@ -70786,7 +71178,7 @@ class Snippets extends APIResource {
      */
     update(snippetName, params, options) {
         const { zone_id, ...body } = params;
-        return this._client.put(`/zones/${zone_id}/snippets/${snippetName}`, multipartFormRequestOptions({ body, ...options }))._thenUnwrap((obj) => obj.result);
+        return this._client.put(`/zones/${zone_id}/snippets/${snippetName}`, multipartFormRequestOptions({ body, ...options, __multipartSyntax: 'json' }))._thenUnwrap((obj) => obj.result);
     }
     /**
      * Fetches all snippets belonging to the zone.
@@ -70929,7 +71321,7 @@ class TURN extends APIResource {
      */
     create(params, options) {
         const { account_id, ...body } = params;
-        return this._client.post(`/accounts/${account_id}/calls/turn_keys`, { body, ...options });
+        return this._client.post(`/accounts/${account_id}/calls/turn_keys`, { body, ...options })._thenUnwrap((obj) => obj.result);
     }
     /**
      * Edit details for a single TURN key.
@@ -71770,36 +72162,6 @@ class Countries extends APIResource {
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
 class Crons extends APIResource {
-    /**
-     * Reads the last cron update time
-     *
-     * @example
-     * ```ts
-     * const crons =
-     *   await client.cloudforceOne.threatEvents.crons.list({
-     *     account_id: 'account_id',
-     *   });
-     * ```
-     */
-    list(params, options) {
-        const { account_id } = params;
-        return this._client.get(`/accounts/${account_id}/cloudforce-one/events/cron`, options);
-    }
-    /**
-     * Reads the last cron update time
-     *
-     * @example
-     * ```ts
-     * const response =
-     *   await client.cloudforceOne.threatEvents.crons.edit({
-     *     account_id: 'account_id',
-     *   });
-     * ```
-     */
-    edit(params, options) {
-        const { account_id } = params;
-        return this._client.patch(`/accounts/${account_id}/cloudforce-one/events/cron`, options);
-    }
 }
 //# sourceMappingURL=crons.mjs.map
 ;// CONCATENATED MODULE: ./node_modules/cloudflare/resources/cloudforce-one/threat-events/event-tags.mjs
@@ -71939,14 +72301,14 @@ class Relate extends APIResource {
 
 class threat_events_tags_Tags extends APIResource {
     /**
-     * Creates a new tag
+     * Creates a new tag to be used accross threat events.
      *
      * @example
      * ```ts
      * const tag =
      *   await client.cloudforceOne.threatEvents.tags.create({
      *     account_id: 'account_id',
-     *     name: 'name',
+     *     value: 'APT28',
      *   });
      * ```
      */
@@ -71984,22 +72346,6 @@ class TargetIndustries extends APIResource {
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
 class health_Health extends APIResource {
-    /**
-     * Benchmark Durable Object warmup
-     *
-     * @example
-     * ```ts
-     * const health =
-     *   await client.cloudforceOne.threatEvents.datasets.health.get(
-     *     '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
-     *     { account_id: 'account_id' },
-     *   );
-     * ```
-     */
-    get(datasetId, params, options) {
-        const { account_id } = params;
-        return this._client.get(`/accounts/${account_id}/cloudforce-one/events/dataset/${datasetId}/health`, options);
-    }
 }
 //# sourceMappingURL=health.mjs.map
 ;// CONCATENATED MODULE: ./node_modules/cloudflare/resources/cloudforce-one/threat-events/datasets/datasets.mjs
@@ -72159,6 +72505,7 @@ class ThreatEvents extends APIResource {
      *     category: 'Domain Resolution',
      *     date: '2022-04-01T00:00:00Z',
      *     event: 'An attacker registered the domain domain.com',
+     *     indicatorType: 'domain',
      *     raw: { data: { foo: 'bar' } },
      *     tlp: 'amber',
      *   });
@@ -72223,6 +72570,7 @@ class ThreatEvents extends APIResource {
      *         date: '2022-04-01T00:00:00Z',
      *         event:
      *           'An attacker registered the domain domain.com',
+     *         indicatorType: 'domain',
      *         raw: { data: { foo: 'bar' } },
      *         tlp: 'amber',
      *       },
@@ -73586,8 +73934,11 @@ class Recipients extends APIResource {
      * ```
      */
     get(shareId, recipientId, params, options) {
-        const { account_id } = params;
-        return this._client.get(`/accounts/${account_id}/shares/${shareId}/recipients/${recipientId}`, options)._thenUnwrap((obj) => obj.result);
+        const { account_id, ...query } = params;
+        return this._client.get(`/accounts/${account_id}/shares/${shareId}/recipients/${recipientId}`, {
+            query,
+            ...options,
+        })._thenUnwrap((obj) => obj.result);
     }
 }
 class RecipientListResponsesV4PagePaginationArray extends V4PagePaginationArray {
@@ -73811,8 +74162,11 @@ class ResourceSharing extends APIResource {
      * ```
      */
     get(shareId, params, options) {
-        const { account_id } = params;
-        return this._client.get(`/accounts/${account_id}/shares/${shareId}`, options)._thenUnwrap((obj) => obj.result);
+        const { account_id, ...query } = params;
+        return this._client.get(`/accounts/${account_id}/shares/${shareId}`, {
+            query,
+            ...options,
+        })._thenUnwrap((obj) => obj.result);
     }
 }
 class ResourceSharingListResponsesV4PagePaginationArray extends V4PagePaginationArray {
@@ -74085,6 +74439,29 @@ class TaskListResponsesSinglePage extends SinglePage {
 }
 Tasks.TaskListResponsesSinglePage = TaskListResponsesSinglePage;
 //# sourceMappingURL=tasks.mjs.map
+;// CONCATENATED MODULE: ./node_modules/cloudflare/resources/ai/to-markdown.mjs
+// File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+
+
+class to_markdown_ToMarkdown extends APIResource {
+    /**
+     * Convert Files into Markdown
+     */
+    transform(file, params, options) {
+        const { account_id } = params;
+        return this._client.getAPIList(`/accounts/${account_id}/ai/tomarkdown`, ToMarkdownTransformResponsesSinglePage, {
+            body: file,
+            method: 'post',
+            ...options,
+            headers: { 'Content-Type': 'application/octet-stream', ...options?.headers },
+            __binaryRequest: true,
+        });
+    }
+}
+class ToMarkdownTransformResponsesSinglePage extends SinglePage {
+}
+to_markdown_ToMarkdown.ToMarkdownTransformResponsesSinglePage = ToMarkdownTransformResponsesSinglePage;
+//# sourceMappingURL=to-markdown.mjs.map
 ;// CONCATENATED MODULE: ./node_modules/cloudflare/resources/ai/finetunes/assets.mjs
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
@@ -74196,6 +74573,8 @@ Models.Schema = Schema;
 
 
 
+
+
 class ai_AI extends APIResource {
     constructor() {
         super(...arguments);
@@ -74203,6 +74582,7 @@ class ai_AI extends APIResource {
         this.authors = new Authors(this._client);
         this.tasks = new Tasks(this._client);
         this.models = new Models(this._client);
+        this.toMarkdown = new to_markdown_ToMarkdown(this._client);
     }
     /**
      * This endpoint provides users with the capability to run specific AI models
@@ -74230,6 +74610,8 @@ ai_AI.Tasks = Tasks;
 ai_AI.TaskListResponsesSinglePage = TaskListResponsesSinglePage;
 ai_AI.Models = Models;
 ai_AI.ModelListResponsesV4PagePaginationArray = ModelListResponsesV4PagePaginationArray;
+ai_AI.ToMarkdown = to_markdown_ToMarkdown;
+ai_AI.ToMarkdownTransformResponsesSinglePage = ToMarkdownTransformResponsesSinglePage;
 //# sourceMappingURL=ai.mjs.map
 ;// CONCATENATED MODULE: ./node_modules/cloudflare/resources/security-center/insights/class.mjs
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
