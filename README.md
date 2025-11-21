@@ -30,65 +30,93 @@ this also requires the Account Email to be set.
 ### Workflow template
 
 ```yaml
+name: Cloudflare Preview URL
 on:
   push:
     branches:
       - '**'
       - '!main'
-# Add a sleep action to wait until the deployment is ready
-- run: sleep 30
-- name: cloudflare-preview-url
-# Use the latest version
-  uses: zentered/cloudflare-preview-url@v1.4.2
-  id: cloudflare_preview_url
-  env:
-    CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-    CLOUDFLARE_ACCOUNT_EMAIL: ${{ secrets.CLOUDFLARE_ACCOUNT_EMAIL }}
-    CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-  with:
-    cloudflare_project_id: 'repo-name'
-    wait_until_ready: true
-- name: Get URL
-  run: echo "${{ steps.cloudflare_preview_url.outputs.preview_url }}"
-```
 
-We recommend setting a timeout for this action, if something goes wrong with the
-build, the Action should stop after 10 minutes:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
 
-```yaml
-runs-on: ubuntu-latest
-timeout-minutes: 10
+      # Optional: Add a sleep action to wait until the deployment is ready
+      # or use wait_until_ready: true below
+      - run: sleep 30
+
+      - name: Get Cloudflare Preview URL
+        uses: zentered/cloudflare-preview-url@v1
+        id: cloudflare_preview_url
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        with:
+          cloudflare_project_id: 'your-project-name'
+          wait_until_ready: true
+
+      - name: Use Preview URL
+        run: echo "Preview URL: ${{ steps.cloudflare_preview_url.outputs.preview_url }}"
 ```
 
 ## Environment Variables / Secrets
 
-In the repository, go to "Settings", then "Secrets" and add
-`CLOUDFLARE_API_TOKEN`, the value you can retrieve on your
-[Cloudflare account](https://dash.cloudflare.com/profile/api-tokens). You also
-need to add:
+In your repository, go to "Settings" → "Secrets and variables" → "Actions" and
+add the following secrets:
 
-- `CLOUDFLARE_ACCOUNT_ID` (from the URL:
-  `https://dash.cloudflare.com/123abc....`)
-- [optional] `CLOUDFLARE_ACCOUNT_EMAIL` (your login email)
+### Required Secrets
 
-When providing an account email address, the token will not be used as `Bearer`
-token.
+- **`CLOUDFLARE_API_TOKEN`** - Your Cloudflare API token (see
+  [API Token setup](#api-token-recommended) above)
+- **`CLOUDFLARE_ACCOUNT_ID`** - Your Cloudflare Account ID (find it in the URL:
+  `https://dash.cloudflare.com/[account-id]/...`)
+
+### Optional Secrets
+
+- **`CLOUDFLARE_ACCOUNT_EMAIL`** - Your Cloudflare account email address
+
+**Note:** When providing `CLOUDFLARE_ACCOUNT_EMAIL`, the action will use API Key
+authentication instead of Bearer token authentication. This is required if
+you're using a Global API Key instead of an API Token.
 
 ## Inputs
 
-| Name                    | Requirement | Description                                                                                                                     |
-| ----------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `cloudflare_project_id` | required    | Cloudflare project id/name                                                                                                      |
-| `wait_until_ready`      | optional    | Wait until the Cloudflare deployment is ready, defaults to "false"                                                              |
-| `environment`           | optional    | Which Cloudflare deployment environments to allow. If set to null, doesn't filter deploys by environment. Defaults to "preview" |
-| `commit_hash`           | optional    | Optional commit hash to filter deployments on. Useful when the same branch can have multiple deploys.                           |
-| `branch`                | optional    | Optional branch name to filter deployments on. Useful when the branch name is not available in the action context.              |
+| Name                    | Requirement  | Default     | Description                                                                                                   |
+| ----------------------- | ------------ | ----------- | ------------------------------------------------------------------------------------------------------------- |
+| `cloudflare_project_id` | **required** | -           | Cloudflare Pages project name (found in your Cloudflare Pages dashboard)                                      |
+| `wait_until_ready`      | optional     | `false`     | Wait until the Cloudflare deployment is ready before returning the URL                                        |
+| `environment`           | optional     | `preview`   | Filter by deployment environment (`preview` or `production`). Set to empty string to include all environments |
+| `commit_hash`           | optional     | -           | Filter deployments by commit hash. Useful when the same branch has multiple deployments                       |
+| `branch`                | optional     | auto-detect | Override branch name for filtering. By default, uses the branch from the GitHub context                       |
 
 ## Outputs
 
 | Name          | Description                                                                                                            |
 | ------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | `preview_url` | A string with the unique URL of the deployment. Always set when a deployment is found, regardless of deployment status |
+
+## Example Use Cases
+
+- **End-to-end Testing**: Use the preview URL to run automated tests against
+  your deployment
+- **Visual Regression Testing**: Integrate with tools like Percy, Chromatic, or
+  BackstopJS
+- **Link Checking**: Validate that all links work in your preview deployment
+- **Performance Testing**: Run Lighthouse or other performance audits
+- **Notifications**: Comment the preview URL on pull requests or send to Slack
+
+## Compatibility
+
+This action uses the official
+[Cloudflare TypeScript SDK v5](https://github.com/cloudflare/cloudflare-typescript)
+and is compatible with:
+
+- Node.js 20+
+- Cloudflare Pages API v4
+- Both API Token (recommended) and Global API Key authentication
 
 ## Contributing
 
