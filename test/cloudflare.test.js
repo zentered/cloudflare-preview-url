@@ -14,13 +14,21 @@ async function readFixture(name) {
 }
 
 test('getDeploymentUrl() should return a Cloudflare build', async () => {
-  const mockFetch = mock.fn(async () => readFixture('success'))
+  const mockCloudflare = mock.fn(function () {
+    return {
+      pages: {
+        projects: {
+          deployments: {
+            list: mock.fn(async () => readFixture('success'))
+          }
+        }
+      }
+    }
+  })
+
   const getDeploymentUrl = await esmock('../src/cloudflare.js', {
-    import: {
-      fetch: async () => ({
-        status: 200,
-        json: mockFetch
-      })
+    '../src/cloudflare-client.js': {
+      default: mockCloudflare
     }
   })
 
@@ -39,27 +47,30 @@ test('getDeploymentUrl() should return a Cloudflare build', async () => {
 })
 
 test('getDeploymentUrl() should fail if there are no deployments', async () => {
-  const mockFetch = mock.fn(async () => readFixture('empty'))
   const mockSetFailed = mock.fn()
-
-  const getDeploymentUrl = await esmock(
-    '../src/cloudflare.js',
-    {
-      '@actions/core': {
-        info: mock.fn(),
-        error: mock.fn(),
-        setFailed: mockSetFailed
-      }
-    },
-    {
-      import: {
-        fetch: async () => ({
-          status: 200,
-          json: mockFetch
-        })
+  const mockCloudflare = mock.fn(function () {
+    return {
+      pages: {
+        projects: {
+          deployments: {
+            list: mock.fn(async () => readFixture('empty'))
+          }
+        }
       }
     }
-  )
+  })
+
+  const getDeploymentUrl = await esmock('../src/cloudflare.js', {
+    '@actions/core': {
+      info: mock.fn(),
+      debug: mock.fn(),
+      error: mock.fn(),
+      setFailed: mockSetFailed
+    },
+    '../src/cloudflare-client.js': {
+      default: mockCloudflare
+    }
+  })
 
   const fn = getDeploymentUrl(
     '123xyz',
@@ -74,20 +85,28 @@ test('getDeploymentUrl() should fail if there are no deployments', async () => {
 
   await assert.rejects(fn, {
     name: 'Error',
-    message: 'no deployments found'
+    message: 'Error fetching deployments: no deployments found'
   })
 
-  assert.equal(mockSetFailed.mock.calls.length, 1)
+  assert.equal(mockSetFailed.mock.calls.length, 2)
 })
 
 test('getDeploymentUrl() should check all environments when null', async () => {
-  const mockFetch = mock.fn(async () => readFixture('check-environments'))
+  const mockCloudflare = mock.fn(function () {
+    return {
+      pages: {
+        projects: {
+          deployments: {
+            list: mock.fn(async () => readFixture('check-environments'))
+          }
+        }
+      }
+    }
+  })
+
   const getDeploymentUrl = await esmock('../src/cloudflare.js', {
-    import: {
-      fetch: async () => ({
-        status: 200,
-        json: mockFetch
-      })
+    '../src/cloudflare-client.js': {
+      default: mockCloudflare
     }
   })
 
@@ -106,13 +125,21 @@ test('getDeploymentUrl() should check all environments when null', async () => {
 })
 
 test('getDeploymentUrl() should filter by commitHash when provided', async () => {
-  const mockFetch = mock.fn(async () => readFixture('filter-by-commithash'))
+  const mockCloudflare = mock.fn(function () {
+    return {
+      pages: {
+        projects: {
+          deployments: {
+            list: mock.fn(async () => readFixture('filter-by-commithash'))
+          }
+        }
+      }
+    }
+  })
+
   const getDeploymentUrl = await esmock('../src/cloudflare.js', {
-    import: {
-      fetch: async () => ({
-        status: 200,
-        json: mockFetch
-      })
+    '../src/cloudflare-client.js': {
+      default: mockCloudflare
     }
   })
 
@@ -131,26 +158,30 @@ test('getDeploymentUrl() should filter by commitHash when provided', async () =>
 })
 
 test('getDeploymentUrl() should fail if there are no matching builds', async () => {
-  const mockFetch = mock.fn(async () => readFixture('filter-by-commithash'))
   const mockSetFailed = mock.fn()
-  const getDeploymentUrl = await esmock(
-    '../src/cloudflare.js',
-    {
-      '@actions/core': {
-        info: mock.fn(),
-        error: mock.fn(),
-        setFailed: mockSetFailed
-      }
-    },
-    {
-      import: {
-        fetch: async () => ({
-          status: 200,
-          json: mockFetch
-        })
+  const mockCloudflare = mock.fn(function () {
+    return {
+      pages: {
+        projects: {
+          deployments: {
+            list: mock.fn(async () => readFixture('filter-by-commithash'))
+          }
+        }
       }
     }
-  )
+  })
+
+  const getDeploymentUrl = await esmock('../src/cloudflare.js', {
+    '@actions/core': {
+      info: mock.fn(),
+      debug: mock.fn(),
+      error: mock.fn(),
+      setFailed: mockSetFailed
+    },
+    '../src/cloudflare-client.js': {
+      default: mockCloudflare
+    }
+  })
 
   const fn = getDeploymentUrl(
     '123xyz',
@@ -163,7 +194,54 @@ test('getDeploymentUrl() should fail if there are no matching builds', async () 
 
   await assert.rejects(fn, {
     name: 'Error',
-    message: 'no matching builds found'
+    message: 'Error fetching deployments: no matching builds found'
+  })
+
+  assert.equal(mockSetFailed.mock.calls.length, 2)
+})
+
+test('getDeploymentUrl() should handle SDK errors gracefully', async () => {
+  const mockSetFailed = mock.fn()
+  const mockCloudflare = mock.fn(function () {
+    return {
+      pages: {
+        projects: {
+          deployments: {
+            list: mock.fn(async () => {
+              throw new Error('Network timeout')
+            })
+          }
+        }
+      }
+    }
+  })
+
+  const getDeploymentUrl = await esmock('../src/cloudflare.js', {
+    '@actions/core': {
+      info: mock.fn(),
+      debug: mock.fn(),
+      error: mock.fn(),
+      setFailed: mockSetFailed
+    },
+    '../src/cloudflare-client.js': {
+      default: mockCloudflare
+    }
+  })
+
+  const fn = getDeploymentUrl(
+    '123xyz',
+    'zentered',
+    'user@example.com',
+    'cf-project',
+    'website',
+    'fix/test-1',
+    'preview',
+    null
+  )
+
+  await assert.rejects(fn, {
+    name: 'Error',
+    message: 'Error fetching deployments: Network timeout'
   })
 
   assert.equal(mockSetFailed.mock.calls.length, 1)

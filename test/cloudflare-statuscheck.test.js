@@ -4,7 +4,7 @@ import assert from 'node:assert'
 import { mock, test } from 'node:test'
 import esmock from 'esmock'
 
-const payload = {
+const mockResponse = {
   result: [
     {
       id: '123abc',
@@ -18,19 +18,23 @@ const payload = {
 }
 
 test('waitForDeployment() should wait until a deployment is successful - wait', async () => {
-  const mockFetch = mock.fn(async () => {
-    return payload
+  const mockCloudflare = mock.fn(function () {
+    return {
+      pages: {
+        projects: {
+          deployments: {
+            list: mock.fn(async () => mockResponse)
+          }
+        }
+      }
+    }
   })
 
   const checkDeploymentStatus = await esmock(
     '../src/cloudflare-statuscheck.js',
     {
-      import: {
-        fetch: async () => ({
-          status: 200,
-          ok: true,
-          json: mockFetch
-        })
+      '../src/cloudflare-client.js': {
+        default: mockCloudflare
       }
     }
   )
@@ -47,20 +51,36 @@ test('waitForDeployment() should wait until a deployment is successful - wait', 
 })
 
 test('waitForDeployment() should wait until a deployment is successful - done', async () => {
-  const mockFetch = mock.fn(async () => {
-    payload.result[0].latest_stage.status = 'success'
-    return payload
+  const successResponse = {
+    result: [
+      {
+        id: '123abc',
+        environment: 'preview',
+        latest_stage: {
+          name: 'deploy',
+          status: 'success'
+        }
+      }
+    ]
+  }
+
+  const mockCloudflare = mock.fn(function () {
+    return {
+      pages: {
+        projects: {
+          deployments: {
+            list: mock.fn(async () => successResponse)
+          }
+        }
+      }
+    }
   })
 
   const checkDeploymentStatus = await esmock(
     '../src/cloudflare-statuscheck.js',
     {
-      import: {
-        fetch: async () => ({
-          status: 200,
-          ok: true,
-          json: mockFetch
-        })
+      '../src/cloudflare-client.js': {
+        default: mockCloudflare
       }
     }
   )
@@ -77,28 +97,43 @@ test('waitForDeployment() should wait until a deployment is successful - done', 
 })
 
 test('waitForDeployment() should abort when a build has failed', async () => {
-  const mockFetch = mock.fn(async () => {
-    payload.result[0].latest_stage.status = 'failure'
-    return payload
-  })
+  const failureResponse = {
+    result: [
+      {
+        id: '123abc',
+        environment: 'preview',
+        latest_stage: {
+          name: 'deploy',
+          status: 'failure'
+        }
+      }
+    ]
+  }
+
   const mockSetFailed = mock.fn()
+  const mockCloudflare = mock.fn(function () {
+    return {
+      pages: {
+        projects: {
+          deployments: {
+            list: mock.fn(async () => failureResponse)
+          }
+        }
+      }
+    }
+  })
 
   const checkDeploymentStatus = await esmock(
     '../src/cloudflare-statuscheck.js',
     {
       '@actions/core': {
         info: mock.fn(),
+        debug: mock.fn(),
         error: mock.fn(),
         setFailed: mockSetFailed
-      }
-    },
-    {
-      import: {
-        fetch: async () => ({
-          status: 200,
-          ok: true,
-          json: mockFetch
-        })
+      },
+      '../src/cloudflare-client.js': {
+        default: mockCloudflare
       }
     }
   )
@@ -113,7 +148,54 @@ test('waitForDeployment() should abort when a build has failed', async () => {
 
   await assert.rejects(fn, {
     name: 'Error',
-    message: 'Build failed. Abort.'
+    message: 'Failed to fetch deployment status: Build failed. Abort.'
+  })
+
+  assert.equal(mockSetFailed.mock.calls.length, 2)
+})
+
+test('waitForDeployment() should handle SDK errors gracefully', async () => {
+  const mockSetFailed = mock.fn()
+  const mockCloudflare = mock.fn(function () {
+    return {
+      pages: {
+        projects: {
+          deployments: {
+            list: mock.fn(async () => {
+              throw new Error('API authentication failed')
+            })
+          }
+        }
+      }
+    }
+  })
+
+  const checkDeploymentStatus = await esmock(
+    '../src/cloudflare-statuscheck.js',
+    {
+      '@actions/core': {
+        info: mock.fn(),
+        debug: mock.fn(),
+        error: mock.fn(),
+        setFailed: mockSetFailed
+      },
+      '../src/cloudflare-client.js': {
+        default: mockCloudflare
+      }
+    }
+  )
+
+  const fn = checkDeploymentStatus(
+    '123xyz',
+    'zentered',
+    'user@example.com',
+    'cf-project',
+    '123abc'
+  )
+
+  await assert.rejects(fn, {
+    name: 'Error',
+    message: 'Failed to fetch deployment status: API authentication failed'
   })
 
   assert.equal(mockSetFailed.mock.calls.length, 1)

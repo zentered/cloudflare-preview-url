@@ -1,6 +1,7 @@
 'use strict'
 
 import core from '@actions/core'
+import createCloudflareClient from './cloudflare-client.js'
 
 export default async function getDeploymentUrl(
   token,
@@ -12,82 +13,76 @@ export default async function getDeploymentUrl(
   environment,
   commitHash
 ) {
-  const apiUrl = `https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${projectId}/deployments`
-
   if (commitHash) {
-    core.info(`Fetching ${commitHash} from: ${apiUrl}`)
+    core.info(`Fetching deployments for commit ${commitHash}`)
   } else {
-    core.info(`Fetching from: ${apiUrl}`)
+    core.info(`Fetching deployments for project ${projectId}`)
   }
 
-  const headers = accountEmail
-    ? {
-        'X-Auth-Key': token,
-        'X-Auth-Email': accountEmail
-      }
-    : {
-        Authorization: `Bearer ${token}`
-      }
+  const cf = createCloudflareClient(token, accountEmail)
 
-  const res = await fetch(apiUrl, {
-    headers
-  })
-  const { error, result } = await res.json()
-
-  if (error) {
-    core.error(error)
-    core.setFailed('error fetching deployments')
-    throw new Error('error fetching deployments')
-  }
-
-  if (!result || result.length <= 0) {
-    core.error(JSON.stringify(result))
-    core.setFailed('no deployments found')
-    throw new Error('no deployments found')
-  }
-
-  core.info(`Found ${result.length} deployments`)
-  core.debug(`Looking for matching deployments ${repo}/${branch}`)
-
-  const builds = result
-    .filter(
-      (d) =>
-        d && d.source && d.source.config && d.source.config.repo_name === repo
-    )
-    .filter(
-      (d) =>
-        d &&
-        d.deployment_trigger &&
-        d.deployment_trigger.metadata.branch === branch
-    )
-    .filter((d) => {
-      if (environment && environment.length > 0) {
-        return d.environment === environment
-      } else {
-        return true
-      }
+  try {
+    const response = await cf.pages.projects.deployments.list({
+      account_id: accountId,
+      project_name: projectId
     })
-    .filter(
-      (d) =>
-        !commitHash ||
-        (d.deployment_trigger.metadata !== null &&
-          d.deployment_trigger.metadata.commit_hash === commitHash)
-    )
 
-  core.info(`Found ${builds.length} matching builds`)
-  if (!builds || builds.length <= 0) {
-    core.error(JSON.stringify(builds))
+    if (!response.result || response.result.length <= 0) {
+      core.error('No deployments found')
+      core.setFailed('no deployments found')
+      throw new Error('no deployments found')
+    }
+
+    const result = response.result
+
+    core.info(`Found ${result.length} deployments`)
+    core.debug(`Looking for matching deployments ${repo}/${branch}`)
+
+    const builds = result
+      .filter(
+        (d) =>
+          d && d.source && d.source.config && d.source.config.repo_name === repo
+      )
+      .filter(
+        (d) =>
+          d &&
+          d.deployment_trigger &&
+          d.deployment_trigger.metadata.branch === branch
+      )
+      .filter((d) => {
+        if (environment && environment.length > 0) {
+          return d.environment === environment
+        } else {
+          return true
+        }
+      })
+      .filter(
+        (d) =>
+          !commitHash ||
+          (d.deployment_trigger.metadata !== null &&
+            d.deployment_trigger.metadata.commit_hash === commitHash)
+      )
+
+    core.info(`Found ${builds.length} matching builds`)
+    if (!builds || builds.length <= 0) {
+      core.error(JSON.stringify(builds))
+      core.info(
+        'If you run this as a pull request check, make sure to include the branch in the trigger (see #Usage in README.md)'
+      )
+      core.setFailed('no matching builds found')
+      throw new Error('no matching builds found')
+    }
+
+    const build = builds[0]
     core.info(
-      'If you run this as a pull request check, make sure to include the branch in the trigger (see #Usage in README.md)'
+      `Preview URL: ${build.url} (${build.latest_stage.name} - ${build.latest_stage.status})`
     )
-    core.setFailed('no matching builds found')
-    throw new Error('no matching builds found')
+
+    return build
+  } catch (error) {
+    core.error('Error fetching deployments from Cloudflare API')
+    core.error(error.message)
+    core.setFailed('error fetching deployments')
+    throw new Error(`Error fetching deployments: ${error.message}`)
   }
-
-  const build = builds[0]
-  core.info(
-    `Preview URL: ${build.url} (${build.latest_stage.name} - ${build.latest_stage.status})`
-  )
-
-  return build
 }
