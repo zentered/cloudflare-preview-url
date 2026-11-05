@@ -5,9 +5,10 @@
 [![semantic-release: conventional](https://img.shields.io/badge/semantic--release-conventional-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
-Retrieve the preview/deployment URL from the Cloudflare API, filtered by the
-repository and branch. The URL can then be used for further end-to-end tests,
-link checks and other PR integrations/actions.
+Retrieve the preview/deployment URL of a Cloudflare Pages project or a
+Cloudflare Worker from the Cloudflare API, filtered by the repository and
+branch. The URL can then be used for further end-to-end tests, link checks and
+other PR integrations/actions.
 
 ## Usage
 
@@ -20,6 +21,8 @@ create a new token with the following permissions:
 - Account - Cloudflare Pages - Read
 - Include - [your page]
 
+For a Worker, use **Account - Workers Scripts - Read** instead.
+
 Copy the token and add it to your repository secrets as `CLOUDFLARE_API_TOKEN`.
 
 ### Global API Key (legacy)
@@ -27,8 +30,8 @@ Copy the token and add it to your repository secrets as `CLOUDFLARE_API_TOKEN`.
 If you cannot use an API Token, you can authenticate with a
 [Global API Key](https://dash.cloudflare.com/profile/api-tokens). Set your
 Global API Key as `CLOUDFLARE_API_TOKEN` and also add `CLOUDFLARE_ACCOUNT_EMAIL`
-with your Cloudflare account email. Do **not** mix these — if you're using an
-API Token, leave `CLOUDFLARE_ACCOUNT_EMAIL` unset.
+with your Cloudflare account email. Do **not** mix these. If you're using an API
+Token, leave `CLOUDFLARE_ACCOUNT_EMAIL` unset.
 
 ### Workflow template
 
@@ -151,11 +154,11 @@ add the following secrets:
 ## Compatibility
 
 This action uses the official
-[Cloudflare TypeScript SDK v5](https://github.com/cloudflare/cloudflare-typescript)
+[Cloudflare TypeScript SDK v7](https://github.com/cloudflare/cloudflare-typescript)
 and is compatible with:
 
-- Node.js 20+
-- Cloudflare Pages API v4
+- The GitHub Actions `node24` runtime
+- Cloudflare API v4: Pages deployments and Worker Previews
 - Both API Token (recommended) and Global API Key authentication
 
 ## Contributing
