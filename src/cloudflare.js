@@ -7,12 +7,14 @@ import createCloudflareClient from './cloudflare-client.js'
 const API_ENVIRONMENTS = ['preview', 'production']
 
 function matchesDeployment(d, repo, branch, environment, commitHash) {
-  if (
-    !d ||
-    !d.source ||
-    !d.source.config ||
-    d.source.config.repo_name !== repo
-  ) {
+  if (!d) {
+    return false
+  }
+
+  // Direct uploads (wrangler pages deploy) and deploy hooks can have no git
+  // source. Check the repo only when the deployment names one.
+  const repoName = d.source?.config?.repo_name
+  if (repoName && repoName !== repo) {
     return false
   }
 

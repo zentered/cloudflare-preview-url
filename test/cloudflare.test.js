@@ -291,3 +291,38 @@ test('getDeploymentUrl() should skip deployments with null trigger metadata', as
 
   assert.equal(url, 'https://123.cf-project.pages.dev')
 })
+
+test('getDeploymentUrl() should match a direct upload without a git source', async () => {
+  const mockCloudflare = mock.fn(function () {
+    return {
+      pages: {
+        projects: {
+          deployments: {
+            list: mock.fn(() => listOf('no-source'))
+          }
+        }
+      }
+    }
+  })
+
+  const getDeploymentUrl = await esmock('../src/cloudflare.js', {
+    '../src/cloudflare-client.js': {
+      default: mockCloudflare
+    }
+  })
+
+  // The first deployment names another repo and is skipped. The direct
+  // upload has no source and matches on branch.
+  const { url } = await getDeploymentUrl(
+    '123xyz',
+    'zentered',
+    undefined,
+    'cf-project',
+    'website',
+    'fix/test-1',
+    'preview',
+    null
+  )
+
+  assert.equal(url, 'https://direct.cf-project.pages.dev')
+})
