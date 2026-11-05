@@ -1,0 +1,43 @@
+{
+  "result": [
+    {
+      "environment": "preview",
+      "url": "https://null.cf-project.pages.dev",
+      "deployment_trigger": {
+        "type": "ad_hoc",
+        "metadata": null
+      },
+      "latest_stage": {
+        "name": "deploy",
+        "status": "success"
+      },
+      "source": {
+        "type": "github",
+        "config": {
+          "repo_name": "website"
+        }
+      }
+    },
+    {
+      "environment": "preview",
+      "url": "https://123.cf-project.pages.dev",
+      "deployment_trigger": {
+        "type": "github:push",
+        "metadata": {
+          "branch": "fix/test-1",
+          "commit_hash": "abc"
+        }
+      },
+      "latest_stage": {
+        "name": "deploy",
+        "status": "success"
+      },
+      "source": {
+        "type": "github",
+        "config": {
+          "repo_name": "website"
+        }
+      }
+    }
+  ]
+}

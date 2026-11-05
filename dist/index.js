@@ -106390,10 +106390,8 @@ function matchesDeployment(d, repo, branch, environment, commitHash) {
     return false
   }
 
-  if (
-    !d.deployment_trigger ||
-    d.deployment_trigger.metadata.branch !== branch
-  ) {
+  const metadata = d.deployment_trigger?.metadata
+  if (!metadata || metadata.branch !== branch) {
     return false
   }
 
@@ -106401,11 +106399,7 @@ function matchesDeployment(d, repo, branch, environment, commitHash) {
     return false
   }
 
-  if (
-    commitHash &&
-    (d.deployment_trigger.metadata === null ||
-      d.deployment_trigger.metadata.commit_hash !== commitHash)
-  ) {
+  if (commitHash && metadata.commit_hash !== commitHash) {
     return false
   }
 

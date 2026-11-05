@@ -258,3 +258,36 @@ test('getDeploymentUrl() should handle SDK errors gracefully', async () => {
 
   assert.equal(mockSetFailed.mock.calls.length, 1)
 })
+
+test('getDeploymentUrl() should skip deployments with null trigger metadata', async () => {
+  const mockCloudflare = mock.fn(function () {
+    return {
+      pages: {
+        projects: {
+          deployments: {
+            list: mock.fn(() => listOf('null-metadata'))
+          }
+        }
+      }
+    }
+  })
+
+  const getDeploymentUrl = await esmock('../src/cloudflare.js', {
+    '../src/cloudflare-client.js': {
+      default: mockCloudflare
+    }
+  })
+
+  const { url } = await getDeploymentUrl(
+    '123xyz',
+    'zentered',
+    undefined,
+    'cf-project',
+    'website',
+    'fix/test-1',
+    'preview',
+    'abc'
+  )
+
+  assert.equal(url, 'https://123.cf-project.pages.dev')
+})
