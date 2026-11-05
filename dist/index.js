@@ -106564,7 +106564,7 @@ async function run() {
       `Retrieving deployment preview for ${githubRepo}/${githubBranch} ...`
     )
 
-    const { id, url } = await getDeploymentUrl(
+    const { id, url, aliases } = await getDeploymentUrl(
       cloudflareToken,
       accountId,
       accountEmail,
@@ -106594,6 +106594,9 @@ async function run() {
     }
 
     core.setOutput('preview_url', url)
+    if (aliases && aliases.length > 0) {
+      core.setOutput('branch_url', aliases[0])
+    }
   } catch (error) {
     core.setFailed(error.message)
   }

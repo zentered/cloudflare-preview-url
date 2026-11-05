@@ -104,6 +104,7 @@ add the following secrets:
 | Name          | Description                                                                                                            |
 | ------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | `preview_url` | A string with the unique URL of the deployment. Always set when a deployment is found, regardless of deployment status |
+| `branch_url`  | The stable branch alias URL, for example `https://my-branch.my-project.pages.dev`. Empty when Cloudflare returns none  |
 
 ## Example Use Cases
 
