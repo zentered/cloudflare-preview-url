@@ -15,24 +15,18 @@ export default async function waitForDeployment(
   const cf = createCloudflareClient(token, accountEmail)
 
   try {
-    const response = await cf.pages.projects.deployments.list(projectId, {
-      account_id: accountId
+    // Fetch the one deployment by id. Listing would only search the first
+    // page of deployments.
+    const build = await cf.pages.projects.deployments.get(deploymentId, {
+      account_id: accountId,
+      project_name: projectId
     })
 
     core.debug('Deployment status response:')
-    core.debug(JSON.stringify(response))
+    core.debug(JSON.stringify(build))
 
-    if (!response.result) {
-      core.error('Invalid API response: missing result')
-      core.error(JSON.stringify(response))
-      core.setFailed('API response does not contain expected data structure')
-      throw new Error('Invalid API response. Abort.')
-    }
-
-    const build = response.result.filter((d) => d.id === deploymentId)[0]
-
-    if (!build) {
-      core.error(response.result)
+    if (!build || !build.latest_stage) {
+      core.error('Invalid API response: missing deployment')
       core.setFailed('no build with this ID found.')
       throw new Error('No build id. Abort.')
     }

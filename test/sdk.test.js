@@ -1,12 +1,13 @@
 'use strict'
 
-// Runs the real Cloudflare SDK against a local HTTP server to check that
-// deployments are found past the first page of the list endpoint.
+// Runs the real Cloudflare SDK against a local HTTP server to check the
+// request paths, query params and pagination the action relies on.
 
 import assert from 'node:assert'
 import { createServer } from 'node:http'
 import { after, before, test } from 'node:test'
 import getDeploymentUrl from '../src/cloudflare.js'
+import waitForDeployment from '../src/cloudflare-statuscheck.js'
 
 function deployment(n, branch) {
   return {
@@ -33,8 +34,20 @@ before(async () => {
   server = createServer((req, res) => {
     const url = new URL(req.url, 'http://localhost')
     requests.push(url)
-    const page = Number(url.searchParams.get('page') || 1)
     res.setHeader('content-type', 'application/json')
+    const single = url.pathname.match(/\/deployments\/([^/]+)$/)
+    if (single) {
+      res.end(
+        JSON.stringify({
+          success: true,
+          errors: [],
+          messages: [],
+          result: { ...deployment(25, 'feat/old-branch'), id: single[1] }
+        })
+      )
+      return
+    }
+    const page = Number(url.searchParams.get('page') || 1)
     res.end(
       JSON.stringify({
         success: true,
@@ -79,5 +92,24 @@ test('getDeploymentUrl() finds a deployment on the second page', async () => {
   assert.equal(
     requests[0].pathname,
     '/accounts/account/pages/projects/cf-project/deployments'
+  )
+})
+
+test('waitForDeployment() fetches the deployment by id', async () => {
+  requests.length = 0
+
+  const ready = await waitForDeployment(
+    'token',
+    'account',
+    undefined,
+    'cf-project',
+    'id-25'
+  )
+
+  assert.equal(ready, true)
+  assert.equal(requests.length, 1)
+  assert.equal(
+    requests[0].pathname,
+    '/accounts/account/pages/projects/cf-project/deployments/id-25'
   )
 })

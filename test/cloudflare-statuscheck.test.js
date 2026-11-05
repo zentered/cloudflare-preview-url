@@ -5,16 +5,12 @@ import { mock, test } from 'node:test'
 import esmock from 'esmock'
 
 const mockResponse = {
-  result: [
-    {
-      id: '123abc',
-      environment: 'preview',
-      latest_stage: {
-        name: 'deploy',
-        status: 'initialized'
-      }
-    }
-  ]
+  id: '123abc',
+  environment: 'preview',
+  latest_stage: {
+    name: 'deploy',
+    status: 'initialized'
+  }
 }
 
 test('waitForDeployment() should wait until a deployment is successful - wait', async () => {
@@ -23,7 +19,7 @@ test('waitForDeployment() should wait until a deployment is successful - wait', 
       pages: {
         projects: {
           deployments: {
-            list: mock.fn(async () => mockResponse)
+            get: mock.fn(async () => mockResponse)
           }
         }
       }
@@ -52,16 +48,12 @@ test('waitForDeployment() should wait until a deployment is successful - wait', 
 
 test('waitForDeployment() should wait until a deployment is successful - done', async () => {
   const successResponse = {
-    result: [
-      {
-        id: '123abc',
-        environment: 'preview',
-        latest_stage: {
-          name: 'deploy',
-          status: 'success'
-        }
-      }
-    ]
+    id: '123abc',
+    environment: 'preview',
+    latest_stage: {
+      name: 'deploy',
+      status: 'success'
+    }
   }
 
   const mockCloudflare = mock.fn(function () {
@@ -69,7 +61,7 @@ test('waitForDeployment() should wait until a deployment is successful - done', 
       pages: {
         projects: {
           deployments: {
-            list: mock.fn(async () => successResponse)
+            get: mock.fn(async () => successResponse)
           }
         }
       }
@@ -98,16 +90,12 @@ test('waitForDeployment() should wait until a deployment is successful - done', 
 
 test('waitForDeployment() should abort when a build has failed', async () => {
   const failureResponse = {
-    result: [
-      {
-        id: '123abc',
-        environment: 'preview',
-        latest_stage: {
-          name: 'deploy',
-          status: 'failure'
-        }
-      }
-    ]
+    id: '123abc',
+    environment: 'preview',
+    latest_stage: {
+      name: 'deploy',
+      status: 'failure'
+    }
   }
 
   const mockSetFailed = mock.fn()
@@ -116,7 +104,7 @@ test('waitForDeployment() should abort when a build has failed', async () => {
       pages: {
         projects: {
           deployments: {
-            list: mock.fn(async () => failureResponse)
+            get: mock.fn(async () => failureResponse)
           }
         }
       }
@@ -161,7 +149,7 @@ test('waitForDeployment() should handle SDK errors gracefully', async () => {
       pages: {
         projects: {
           deployments: {
-            list: mock.fn(async () => {
+            get: mock.fn(async () => {
               throw new Error('API authentication failed')
             })
           }
