@@ -29,6 +29,8 @@ const pages = {
 
 const requests = []
 let server
+// When set, every page is full of non-matching deployments.
+let endless = false
 
 before(async () => {
   server = createServer((req, res) => {
@@ -48,6 +50,11 @@ before(async () => {
       return
     }
     const page = Number(url.searchParams.get('page') || 1)
+    if (endless) {
+      pages[page] = Array.from({ length: 25 }, (_, i) =>
+        deployment(page * 25 + i, `other-${page}-${i}`)
+      )
+    }
     res.end(
       JSON.stringify({
         success: true,
@@ -93,6 +100,36 @@ test('getDeploymentUrl() finds a deployment on the second page', async () => {
     requests[0].pathname,
     '/accounts/account/pages/projects/cf-project/deployments'
   )
+})
+
+test('getDeploymentUrl() stops after the deployment cap when nothing matches', async () => {
+  requests.length = 0
+  endless = true
+
+  try {
+    await assert.rejects(
+      getDeploymentUrl(
+        'token',
+        'account',
+        undefined,
+        'cf-project',
+        'website',
+        'no-such-branch',
+        'preview',
+        null
+      ),
+      {
+        message: 'Error fetching deployments: no matching builds found'
+      }
+    )
+  } finally {
+    endless = false
+    // core.setFailed() sets the exit code. Clear it so the file passes.
+    process.exitCode = 0
+  }
+
+  // 250 deployments at 25 per page is 10 requests.
+  assert.equal(requests.length, 10)
 })
 
 test('waitForDeployment() fetches the deployment by id', async () => {
