@@ -6,11 +6,20 @@ import esmock from 'esmock'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-async function readFixture(name) {
+function readFixture(name) {
   const path = join('test', 'fixtures', `${name}.json`)
   const file = readFileSync(path, 'utf8')
-  const data = JSON.parse(file)
-  return Promise.resolve(data)
+  return JSON.parse(file)
+}
+
+// Mimics the SDK's PagePromise: an async iterable over every deployment.
+function listOf(name) {
+  const { result } = readFixture(name)
+  return {
+    async *[Symbol.asyncIterator]() {
+      yield* result
+    }
+  }
 }
 
 test('getDeploymentUrl() should return a Cloudflare build', async () => {
@@ -19,7 +28,7 @@ test('getDeploymentUrl() should return a Cloudflare build', async () => {
       pages: {
         projects: {
           deployments: {
-            list: mock.fn(async () => readFixture('success'))
+            list: mock.fn(() => listOf('success'))
           }
         }
       }
@@ -53,7 +62,7 @@ test('getDeploymentUrl() should fail if there are no deployments', async () => {
       pages: {
         projects: {
           deployments: {
-            list: mock.fn(async () => readFixture('empty'))
+            list: mock.fn(() => listOf('empty'))
           }
         }
       }
@@ -97,7 +106,7 @@ test('getDeploymentUrl() should check all environments when null', async () => {
       pages: {
         projects: {
           deployments: {
-            list: mock.fn(async () => readFixture('check-environments'))
+            list: mock.fn(() => listOf('check-environments'))
           }
         }
       }
@@ -130,7 +139,7 @@ test('getDeploymentUrl() should filter by commitHash when provided', async () =>
       pages: {
         projects: {
           deployments: {
-            list: mock.fn(async () => readFixture('filter-by-commithash'))
+            list: mock.fn(() => listOf('filter-by-commithash'))
           }
         }
       }
@@ -164,7 +173,7 @@ test('getDeploymentUrl() should fail if there are no matching builds', async () 
       pages: {
         projects: {
           deployments: {
-            list: mock.fn(async () => readFixture('filter-by-commithash'))
+            list: mock.fn(() => listOf('filter-by-commithash'))
           }
         }
       }
@@ -207,9 +216,12 @@ test('getDeploymentUrl() should handle SDK errors gracefully', async () => {
       pages: {
         projects: {
           deployments: {
-            list: mock.fn(async () => {
-              throw new Error('Network timeout')
-            })
+            list: mock.fn(() => ({
+              // eslint-disable-next-line require-yield
+              async *[Symbol.asyncIterator]() {
+                throw new Error('Network timeout')
+              }
+            }))
           }
         }
       }
