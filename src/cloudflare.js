@@ -1,6 +1,6 @@
 'use strict'
 
-import core from '@actions/core'
+import * as core from '@actions/core'
 import createCloudflareClient from './cloudflare-client.js'
 
 const API_ENVIRONMENTS = ['preview', 'production']
@@ -103,6 +103,8 @@ export default async function getDeploymentUrl(
     core.error('Error fetching deployments from Cloudflare API')
     core.error(error.message)
     core.setFailed('error fetching deployments')
-    throw new Error(`Error fetching deployments: ${error.message}`)
+    throw new Error(`Error fetching deployments: ${error.message}`, {
+      cause: error
+    })
   }
 }

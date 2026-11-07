@@ -47,21 +47,21 @@
     ]
   },
   "dependencies": {
-    "@actions/core": "^1.11.1",
+    "@actions/core": "^3.0.1",
     "cloudflare": "^7.3.0"
   },
   "devDependencies": {
-    "@commitlint/config-conventional": "^20.0.0",
-    "@eslint/js": "^9.39.1",
-    "@vercel/ncc": "^0.38.4",
-    "commitlint": "^20.1.0",
-    "eslint": "^9.39.1",
-    "esmock": "^2.7.3",
-    "globals": "^16.5.0",
+    "@commitlint/config-conventional": "^21.2.4",
+    "@eslint/js": "^10.0.1",
+    "@vercel/ncc": "^0.45.0",
+    "commitlint": "^21.2.4",
+    "eslint": "^10.14.0",
+    "esmock": "^3.0.0",
+    "globals": "^17.14.0",
     "husky": "^9.1.7",
     "pinst": "^3.0.0",
-    "prettier": "^3.6.2",
-    "webpack": "^5.103.0"
+    "prettier": "^3.9.10",
+    "webpack": "^5.112.2"
   },
   "engines": {
     "node": ">=20"
