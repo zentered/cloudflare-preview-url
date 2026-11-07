@@ -3,13 +3,8 @@
 import core from '@actions/core'
 import createCloudflareClient from './cloudflare-client.js'
 
-// Values the deployments list endpoint accepts in its `env` query param.
 const API_ENVIRONMENTS = ['preview', 'production']
 
-// Stop searching after this many deployments. The list is newest first and
-// the API returns 25 per page, so this is about 10 requests. A preview for a
-// live branch is near the top. Without a bound, a branch that has no
-// deployment would page through the whole project history.
 const MAX_DEPLOYMENTS_CHECKED = 250
 
 function matchesDeployment(d, repo, branch, environment, commitHash) {
@@ -17,8 +12,6 @@ function matchesDeployment(d, repo, branch, environment, commitHash) {
     return false
   }
 
-  // Direct uploads (wrangler pages deploy) and deploy hooks can have no git
-  // source. Check the repo only when the deployment names one.
   const repoName = d.source?.config?.repo_name
   if (repoName && repoName !== repo) {
     return false
@@ -66,8 +59,6 @@ export default async function getDeploymentUrl(
   try {
     core.debug(`Looking for matching deployments ${repo}/${branch}`)
 
-    // The list is paginated. Iterating the SDK result fetches the next page
-    // on demand and stops at the first match or at the deployment cap.
     let checked = 0
     let build = null
     for await (const d of cf.pages.projects.deployments.list(

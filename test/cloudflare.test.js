@@ -12,7 +12,6 @@ function readFixture(name) {
   return JSON.parse(file)
 }
 
-// Mimics the SDK's PagePromise: an async iterable over every deployment.
 function listOf(name) {
   const { result } = readFixture(name)
   return {
@@ -311,8 +310,6 @@ test('getDeploymentUrl() should match a direct upload without a git source', asy
     }
   })
 
-  // The first deployment names another repo and is skipped. The direct
-  // upload has no source and matches on branch.
   const { url } = await getDeploymentUrl(
     '123xyz',
     'zentered',
