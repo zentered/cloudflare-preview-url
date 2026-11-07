@@ -4,10 +4,18 @@ branding:
 description: 'Receive the deployment preview URL from Cloudflare'
 inputs:
   cloudflare_project_id:
-    description: 'Cloudflare project id / name'
-    required: true
+    description:
+      'Cloudflare Pages project name. Set this or cloudflare_worker_name.'
+    required: false
+  cloudflare_worker_name:
+    description:
+      'Cloudflare Worker name or id, to read a Worker Preview instead of a Pages
+      deployment. Set this or cloudflare_project_id.'
+    required: false
   wait_until_ready:
-    description: 'Wait for deployment to be ready'
+    description:
+      'Wait for deployment to be ready. For Workers, wait until the Preview
+      deployment exists.'
     required: false
     default: ''
   environment:
@@ -32,6 +40,11 @@ outputs:
     description:
       'A string with the unique URL of the deployment. Always set when a
       deployment is found, regardless of deployment status.'
+  branch_url:
+    description:
+      'The stable branch URL: the Pages branch alias or the Worker Preview URL.
+      It always points to the latest deployment of the branch. Empty when
+      Cloudflare returns none.'
 runs:
   main: dist/index.js
   using: node24

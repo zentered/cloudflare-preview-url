@@ -110691,6 +110691,81 @@ async function waitForDeployment(
   }
 }
 
+;// CONCATENATED MODULE: ./node_modules/cloudflare/pagination.mjs
+/** @deprecated Import from ./core/pagination instead */
+
+//# sourceMappingURL=pagination.mjs.map
+;// CONCATENATED MODULE: ./src/cloudflare-workers.js
+
+
+;
+
+
+
+async function getWorkerPreviewUrl(
+  token,
+  accountId,
+  accountEmail,
+  workerName,
+  branch,
+  commitHash
+) {
+  const cf = createCloudflareClient(token, accountEmail)
+  const base = `/accounts/${accountId}/workers/workers/${encodeURIComponent(workerName)}/previews`
+
+  let preview
+  try {
+    const response = await cf.get(`${base}/${encodeURIComponent(branch)}`)
+    preview = response.result
+  } catch (error) {
+    if (error.status === 404) {
+      info(`No Worker Preview named ${branch} on ${workerName} yet`)
+      return null
+    }
+    throw new Error(`Error fetching Worker Preview: ${error.message}`, {
+      cause: error
+    })
+  }
+
+  let latest = null
+  try {
+    for await (const d of cf.getAPIList(
+      `${base}/${preview.id}/deployments`,
+      V4PagePaginationArray
+    )) {
+      if (commitHash && d.annotations?.['workers/commit_sha'] !== commitHash) {
+        continue
+      }
+      if (!latest || d.number > latest.number) {
+        latest = d
+      }
+    }
+  } catch (error) {
+    throw new Error(
+      `Error fetching Worker Preview deployments: ${error.message}`,
+      { cause: error }
+    )
+  }
+
+  if (!latest) {
+    info(
+      commitHash
+        ? `No deployment of Preview ${preview.name} for commit ${commitHash} yet`
+        : `Preview ${preview.name} has no deployments yet`
+    )
+    return null
+  }
+
+  const result = {
+    id: latest.id,
+    url: latest.urls?.[0],
+    branchUrl: preview.urls?.[0]
+  }
+  info(`Preview URL: ${result.url} (deployment #${latest.number})`)
+
+  return result
+}
+
 ;// CONCATENATED MODULE: ./src/index.js
 
 
@@ -110698,60 +110773,140 @@ async function waitForDeployment(
 
 
 
+
 async function delay(ms) {
   return await new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-async function run() {
-  try {
-    const cloudflareToken = process.env.CLOUDFLARE_API_TOKEN
-    const githubRef =
-      getInput('branch', { required: false }) || process.env.GITHUB_REF
-    const githubProject = process.env.GITHUB_REPOSITORY
-    const githubBranch = githubRef.replace('refs/heads/', '')
-    const githubRepo = githubProject.split('/')[1]
-    const accountId = process.env.CLOUDFLARE_ACCOUNT_ID
-    const accountEmail = process.env.CLOUDFLARE_ACCOUNT_EMAIL
-    const projectId = getInput('cloudflare_project_id')
-    const waitForDeploymentReady = getInput('wait_until_ready')
-    const environment = getInput('environment', { required: false })
-    const inputHash = getInput('commit_hash', { required: false })
-    const commitHash = inputHash === '' || inputHash === null ? null : inputHash
+async function runPages(options) {
+  const {
+    cloudflareToken,
+    accountId,
+    accountEmail,
+    projectId,
+    githubRepo,
+    githubBranch,
+    environment,
+    commitHash,
+    waitForDeploymentReady
+  } = options
 
-    info(
-      `Retrieving deployment preview for ${githubRepo}/${githubBranch} ...`
-    )
+  const { id, url, aliases } = await getDeploymentUrl(
+    cloudflareToken,
+    accountId,
+    accountEmail,
+    projectId,
+    githubRepo,
+    githubBranch,
+    environment,
+    commitHash
+  )
 
-    const { id, url } = await getDeploymentUrl(
+  if (waitForDeploymentReady) {
+    let deploymentReady = false
+
+    while (!deploymentReady) {
+      deploymentReady = await waitForDeployment(
+        cloudflareToken,
+        accountId,
+        accountEmail,
+        projectId,
+        id
+      )
+
+      if (!deploymentReady) {
+        await delay(2000)
+      }
+    }
+  }
+
+  setOutput('preview_url', url)
+  if (aliases && aliases.length > 0) {
+    setOutput('branch_url', aliases[0])
+  }
+}
+
+async function runWorkers(options) {
+  const {
+    cloudflareToken,
+    accountId,
+    accountEmail,
+    workerName,
+    githubBranch,
+    commitHash,
+    waitForDeploymentReady
+  } = options
+
+  let preview = null
+  while (!preview) {
+    preview = await getWorkerPreviewUrl(
       cloudflareToken,
       accountId,
       accountEmail,
-      projectId,
-      githubRepo,
+      workerName,
       githubBranch,
-      environment,
       commitHash
     )
 
-    if (waitForDeploymentReady === 'true') {
-      let deploymentReady = false
-
-      while (!deploymentReady) {
-        deploymentReady = await waitForDeployment(
-          cloudflareToken,
-          accountId,
-          accountEmail,
-          projectId,
-          id
+    if (!preview) {
+      if (!waitForDeploymentReady) {
+        throw new Error(
+          `No Worker Preview found for ${workerName}/${githubBranch}. Set wait_until_ready: true to wait for it.`
         )
-
-        if (!deploymentReady) {
-          await delay(2000)
-        }
       }
+      await delay(5000)
+    }
+  }
+
+  if (!preview.url) {
+    throw new Error(
+      'The Preview deployment has no URL. Check that Preview URLs are enabled for the Worker.'
+    )
+  }
+
+  setOutput('preview_url', preview.url)
+  if (preview.branchUrl) {
+    setOutput('branch_url', preview.branchUrl)
+  }
+}
+
+async function run() {
+  try {
+    const githubRef =
+      getInput('branch', { required: false }) || process.env.GITHUB_REF
+    const githubProject = process.env.GITHUB_REPOSITORY
+    const inputHash = getInput('commit_hash', { required: false })
+    const projectId = getInput('cloudflare_project_id')
+    const workerName = getInput('cloudflare_worker_name')
+
+    if (!projectId === !workerName) {
+      throw new Error(
+        'Set exactly one of cloudflare_project_id (Pages) or cloudflare_worker_name (Workers).'
+      )
     }
 
-    setOutput('preview_url', url)
+    const options = {
+      cloudflareToken: process.env.CLOUDFLARE_API_TOKEN,
+      accountId: process.env.CLOUDFLARE_ACCOUNT_ID,
+      accountEmail: process.env.CLOUDFLARE_ACCOUNT_EMAIL,
+      projectId,
+      workerName,
+      githubRepo: githubProject.split('/')[1],
+      githubBranch: githubRef.replace('refs/heads/', ''),
+      environment: getInput('environment', { required: false }),
+      commitHash: inputHash === '' || inputHash === null ? null : inputHash,
+      waitForDeploymentReady: getInput('wait_until_ready') === 'true'
+    }
+
+    info(
+      `Retrieving deployment preview for ${options.githubRepo}/${options.githubBranch} ...`
+    )
+
+    if (workerName) {
+      await runWorkers(options)
+    } else {
+      await runPages(options)
+    }
   } catch (error) {
     setFailed(error.message)
   }
