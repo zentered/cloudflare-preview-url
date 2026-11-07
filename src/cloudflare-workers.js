@@ -1,6 +1,6 @@
 'use strict'
 
-import core from '@actions/core'
+import * as core from '@actions/core'
 import { V4PagePaginationArray } from 'cloudflare/pagination'
 import createCloudflareClient from './cloudflare-client.js'
 
@@ -24,7 +24,9 @@ export default async function getWorkerPreviewUrl(
       core.info(`No Worker Preview named ${branch} on ${workerName} yet`)
       return null
     }
-    throw new Error(`Error fetching Worker Preview: ${error.message}`)
+    throw new Error(`Error fetching Worker Preview: ${error.message}`, {
+      cause: error
+    })
   }
 
   let latest = null
@@ -42,7 +44,8 @@ export default async function getWorkerPreviewUrl(
     }
   } catch (error) {
     throw new Error(
-      `Error fetching Worker Preview deployments: ${error.message}`
+      `Error fetching Worker Preview deployments: ${error.message}`,
+      { cause: error }
     )
   }
 

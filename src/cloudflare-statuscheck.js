@@ -1,6 +1,6 @@
 'use strict'
 
-import core from '@actions/core'
+import * as core from '@actions/core'
 import createCloudflareClient from './cloudflare-client.js'
 
 export default async function waitForDeployment(
@@ -46,6 +46,8 @@ export default async function waitForDeployment(
     core.error('Error fetching deployment status from Cloudflare API')
     core.error(error.message)
     core.setFailed('Failed to fetch deployment status')
-    throw new Error(`Failed to fetch deployment status: ${error.message}`)
+    throw new Error(`Failed to fetch deployment status: ${error.message}`, {
+      cause: error
+    })
   }
 }

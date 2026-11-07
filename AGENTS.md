@@ -15,7 +15,7 @@
 - `npm test` — Runs Node’s `node:test` suite.
 - `npm run prepare` — Bundles to `dist/` via `@vercel/ncc` with source maps.
 - `npm run build` — `lint` + `test` + `prepare` (use before publishing).
-- First-time setup: `npm i` (installs Husky hooks). Node `>=20` is required.
+- First-time setup: `npm i` (installs Husky hooks). Node `>=24` is required.
 
 ## Coding Style & Naming Conventions
 
