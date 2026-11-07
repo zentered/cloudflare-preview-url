@@ -4,16 +4,6 @@ import core from '@actions/core'
 import { V4PagePaginationArray } from 'cloudflare/pagination'
 import createCloudflareClient from './cloudflare-client.js'
 
-/**
- * Finds the Worker Preview for a branch and its latest deployment.
- * https://developers.cloudflare.com/workers/previews/
- *
- * The SDK has no Previews resource yet, so this calls the endpoints through
- * the SDK's generic get and getAPIList.
- *
- * @returns {Promise<{id: string, url: string, branchUrl: string} | null>}
- * null when the Preview or a matching deployment does not exist yet.
- */
 export default async function getWorkerPreviewUrl(
   token,
   accountId,
@@ -25,8 +15,6 @@ export default async function getWorkerPreviewUrl(
   const cf = createCloudflareClient(token, accountEmail)
   const base = `/accounts/${accountId}/workers/workers/${encodeURIComponent(workerName)}/previews`
 
-  // The Preview name defaults to the branch name. The endpoint accepts the
-  // URL-encoded name in place of the Preview id.
   let preview
   try {
     const response = await cf.get(`${base}/${encodeURIComponent(branch)}`)
@@ -39,8 +27,6 @@ export default async function getWorkerPreviewUrl(
     throw new Error(`Error fetching Worker Preview: ${error.message}`)
   }
 
-  // The deployments endpoint has no sort param. Check every page and keep
-  // the highest deployment number.
   let latest = null
   try {
     for await (const d of cf.getAPIList(

@@ -1,8 +1,5 @@
 'use strict'
 
-// Runs the real Cloudflare SDK against a local HTTP server that mimics the
-// Worker Previews API.
-
 import assert from 'node:assert'
 import { createServer } from 'node:http'
 import { after, before, beforeEach, test } from 'node:test'
@@ -26,7 +23,6 @@ function deployment(number, sha) {
   }
 }
 
-// Two pages of deployments, not sorted by number.
 const deploymentPages = {
   1: [deployment(2, 'bbb'), deployment(1, 'aaa')],
   2: [deployment(3, 'ccc')]
