@@ -1,0 +1,39 @@
+{
+  "result": [
+    {
+      "environment": "preview",
+      "url": "https://other-repo.cf-project.pages.dev",
+      "deployment_trigger": {
+        "type": "github:push",
+        "metadata": {
+          "branch": "fix/test-1"
+        }
+      },
+      "latest_stage": {
+        "name": "deploy",
+        "status": "success"
+      },
+      "source": {
+        "type": "github",
+        "config": {
+          "repo_name": "other-repo"
+        }
+      }
+    },
+    {
+      "environment": "preview",
+      "url": "https://direct.cf-project.pages.dev",
+      "deployment_trigger": {
+        "type": "ad_hoc",
+        "metadata": {
+          "branch": "fix/test-1"
+        }
+      },
+      "latest_stage": {
+        "name": "deploy",
+        "status": "success"
+      },
+      "source": null
+    }
+  ]
+}

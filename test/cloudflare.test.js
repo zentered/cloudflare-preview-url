@@ -6,11 +6,19 @@ import esmock from 'esmock'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-async function readFixture(name) {
+function readFixture(name) {
   const path = join('test', 'fixtures', `${name}.json`)
   const file = readFileSync(path, 'utf8')
-  const data = JSON.parse(file)
-  return Promise.resolve(data)
+  return JSON.parse(file)
+}
+
+function listOf(name) {
+  const { result } = readFixture(name)
+  return {
+    async *[Symbol.asyncIterator]() {
+      yield* result
+    }
+  }
 }
 
 test('getDeploymentUrl() should return a Cloudflare build', async () => {
@@ -19,7 +27,7 @@ test('getDeploymentUrl() should return a Cloudflare build', async () => {
       pages: {
         projects: {
           deployments: {
-            list: mock.fn(async () => readFixture('success'))
+            list: mock.fn(() => listOf('success'))
           }
         }
       }
@@ -53,7 +61,7 @@ test('getDeploymentUrl() should fail if there are no deployments', async () => {
       pages: {
         projects: {
           deployments: {
-            list: mock.fn(async () => readFixture('empty'))
+            list: mock.fn(() => listOf('empty'))
           }
         }
       }
@@ -97,7 +105,7 @@ test('getDeploymentUrl() should check all environments when null', async () => {
       pages: {
         projects: {
           deployments: {
-            list: mock.fn(async () => readFixture('check-environments'))
+            list: mock.fn(() => listOf('check-environments'))
           }
         }
       }
@@ -130,7 +138,7 @@ test('getDeploymentUrl() should filter by commitHash when provided', async () =>
       pages: {
         projects: {
           deployments: {
-            list: mock.fn(async () => readFixture('filter-by-commithash'))
+            list: mock.fn(() => listOf('filter-by-commithash'))
           }
         }
       }
@@ -164,7 +172,7 @@ test('getDeploymentUrl() should fail if there are no matching builds', async () 
       pages: {
         projects: {
           deployments: {
-            list: mock.fn(async () => readFixture('filter-by-commithash'))
+            list: mock.fn(() => listOf('filter-by-commithash'))
           }
         }
       }
@@ -207,9 +215,12 @@ test('getDeploymentUrl() should handle SDK errors gracefully', async () => {
       pages: {
         projects: {
           deployments: {
-            list: mock.fn(async () => {
-              throw new Error('Network timeout')
-            })
+            list: mock.fn(() => ({
+              // eslint-disable-next-line require-yield
+              async *[Symbol.asyncIterator]() {
+                throw new Error('Network timeout')
+              }
+            }))
           }
         }
       }
@@ -245,4 +256,70 @@ test('getDeploymentUrl() should handle SDK errors gracefully', async () => {
   })
 
   assert.equal(mockSetFailed.mock.calls.length, 1)
+})
+
+test('getDeploymentUrl() should skip deployments with null trigger metadata', async () => {
+  const mockCloudflare = mock.fn(function () {
+    return {
+      pages: {
+        projects: {
+          deployments: {
+            list: mock.fn(() => listOf('null-metadata'))
+          }
+        }
+      }
+    }
+  })
+
+  const getDeploymentUrl = await esmock('../src/cloudflare.js', {
+    '../src/cloudflare-client.js': {
+      default: mockCloudflare
+    }
+  })
+
+  const { url } = await getDeploymentUrl(
+    '123xyz',
+    'zentered',
+    undefined,
+    'cf-project',
+    'website',
+    'fix/test-1',
+    'preview',
+    'abc'
+  )
+
+  assert.equal(url, 'https://123.cf-project.pages.dev')
+})
+
+test('getDeploymentUrl() should match a direct upload without a git source', async () => {
+  const mockCloudflare = mock.fn(function () {
+    return {
+      pages: {
+        projects: {
+          deployments: {
+            list: mock.fn(() => listOf('no-source'))
+          }
+        }
+      }
+    }
+  })
+
+  const getDeploymentUrl = await esmock('../src/cloudflare.js', {
+    '../src/cloudflare-client.js': {
+      default: mockCloudflare
+    }
+  })
+
+  const { url } = await getDeploymentUrl(
+    '123xyz',
+    'zentered',
+    undefined,
+    'cf-project',
+    'website',
+    'fix/test-1',
+    'preview',
+    null
+  )
+
+  assert.equal(url, 'https://direct.cf-project.pages.dev')
 })

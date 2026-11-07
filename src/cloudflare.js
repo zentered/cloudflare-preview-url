@@ -3,6 +3,36 @@
 import core from '@actions/core'
 import createCloudflareClient from './cloudflare-client.js'
 
+const API_ENVIRONMENTS = ['preview', 'production']
+
+const MAX_DEPLOYMENTS_CHECKED = 250
+
+function matchesDeployment(d, repo, branch, environment, commitHash) {
+  if (!d) {
+    return false
+  }
+
+  const repoName = d.source?.config?.repo_name
+  if (repoName && repoName !== repo) {
+    return false
+  }
+
+  const metadata = d.deployment_trigger?.metadata
+  if (!metadata || metadata.branch !== branch) {
+    return false
+  }
+
+  if (environment && environment.length > 0 && d.environment !== environment) {
+    return false
+  }
+
+  if (commitHash && metadata.commit_hash !== commitHash) {
+    return false
+  }
+
+  return true
+}
+
 export default async function getDeploymentUrl(
   token,
   accountId,
@@ -21,50 +51,42 @@ export default async function getDeploymentUrl(
 
   const cf = createCloudflareClient(token, accountEmail)
 
-  try {
-    const response = await cf.pages.projects.deployments.list(projectId, {
-      account_id: accountId
-    })
+  const params = { account_id: accountId }
+  if (API_ENVIRONMENTS.includes(environment)) {
+    params.env = environment
+  }
 
-    if (!response.result || response.result.length <= 0) {
+  try {
+    core.debug(`Looking for matching deployments ${repo}/${branch}`)
+
+    let checked = 0
+    let build = null
+    for await (const d of cf.pages.projects.deployments.list(
+      projectId,
+      params
+    )) {
+      checked++
+      if (matchesDeployment(d, repo, branch, environment, commitHash)) {
+        build = d
+        break
+      }
+      if (checked >= MAX_DEPLOYMENTS_CHECKED) {
+        core.info(
+          `Search bounded: checked the newest ${checked} deployments without a match. Older deployments were not checked.`
+        )
+        break
+      }
+    }
+
+    if (checked === 0) {
       core.error('No deployments found')
       core.setFailed('no deployments found')
       throw new Error('no deployments found')
     }
 
-    const result = response.result
+    core.info(`Checked ${checked} deployments`)
 
-    core.info(`Found ${result.length} deployments`)
-    core.debug(`Looking for matching deployments ${repo}/${branch}`)
-
-    const builds = result
-      .filter(
-        (d) =>
-          d && d.source && d.source.config && d.source.config.repo_name === repo
-      )
-      .filter(
-        (d) =>
-          d &&
-          d.deployment_trigger &&
-          d.deployment_trigger.metadata.branch === branch
-      )
-      .filter((d) => {
-        if (environment && environment.length > 0) {
-          return d.environment === environment
-        } else {
-          return true
-        }
-      })
-      .filter(
-        (d) =>
-          !commitHash ||
-          (d.deployment_trigger.metadata !== null &&
-            d.deployment_trigger.metadata.commit_hash === commitHash)
-      )
-
-    core.info(`Found ${builds.length} matching builds`)
-    if (!builds || builds.length <= 0) {
-      core.error(JSON.stringify(builds))
+    if (!build) {
       core.info(
         'If you run this as a pull request check, make sure to include the branch in the trigger (see #Usage in README.md)'
       )
@@ -72,7 +94,6 @@ export default async function getDeploymentUrl(
       throw new Error('no matching builds found')
     }
 
-    const build = builds[0]
     core.info(
       `Preview URL: ${build.url} (${build.latest_stage.name} - ${build.latest_stage.status})`
     )
