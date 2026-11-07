@@ -15,8 +15,6 @@ export default async function waitForDeployment(
   const cf = createCloudflareClient(token, accountEmail)
 
   try {
-    // Fetch the one deployment by id. Listing would only search the first
-    // page of deployments.
     const build = await cf.pages.projects.deployments.get(deploymentId, {
       account_id: accountId,
       project_name: projectId

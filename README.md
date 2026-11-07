@@ -141,6 +141,10 @@ add the following secrets:
 | `preview_url` | A string with the unique URL of the deployment. Always set when a deployment is found, regardless of deployment status |
 | `branch_url`  | The stable branch URL: the Pages branch alias or the Worker Preview URL. Empty when Cloudflare returns none            |
 
+The action searches the newest 250 deployments of the project, newest first. It
+stops at the first match. If none of them match, it fails with
+`no matching builds found`.
+
 ## Example Use Cases
 
 - **End-to-end Testing**: Use the preview URL to run automated tests against

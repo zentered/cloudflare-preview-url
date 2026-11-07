@@ -3,16 +3,15 @@
 import core from '@actions/core'
 import createCloudflareClient from './cloudflare-client.js'
 
-// Values the deployments list endpoint accepts in its `env` query param.
 const API_ENVIRONMENTS = ['preview', 'production']
+
+const MAX_DEPLOYMENTS_CHECKED = 250
 
 function matchesDeployment(d, repo, branch, environment, commitHash) {
   if (!d) {
     return false
   }
 
-  // Direct uploads (wrangler pages deploy) and deploy hooks can have no git
-  // source. Check the repo only when the deployment names one.
   const repoName = d.source?.config?.repo_name
   if (repoName && repoName !== repo) {
     return false
@@ -60,8 +59,6 @@ export default async function getDeploymentUrl(
   try {
     core.debug(`Looking for matching deployments ${repo}/${branch}`)
 
-    // The list is paginated. Iterating the SDK result fetches the next page
-    // on demand and stops as soon as a match is found.
     let checked = 0
     let build = null
     for await (const d of cf.pages.projects.deployments.list(
@@ -71,6 +68,12 @@ export default async function getDeploymentUrl(
       checked++
       if (matchesDeployment(d, repo, branch, environment, commitHash)) {
         build = d
+        break
+      }
+      if (checked >= MAX_DEPLOYMENTS_CHECKED) {
+        core.info(
+          `Search bounded: checked the newest ${checked} deployments without a match. Older deployments were not checked.`
+        )
         break
       }
     }

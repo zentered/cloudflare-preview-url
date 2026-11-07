@@ -188,3 +188,52 @@ test('waitForDeployment() should handle SDK errors gracefully', async () => {
 
   assert.equal(mockSetFailed.mock.calls.length, 1)
 })
+
+test('waitForDeployment() should abort when the response has no deployment', async () => {
+  const mockSetFailed = mock.fn()
+  const mockCloudflare = mock.fn(function () {
+    return {
+      pages: {
+        projects: {
+          deployments: {
+            get: mock.fn(async () => ({}))
+          }
+        }
+      }
+    }
+  })
+
+  const checkDeploymentStatus = await esmock(
+    '../src/cloudflare-statuscheck.js',
+    {
+      '@actions/core': {
+        info: mock.fn(),
+        debug: mock.fn(),
+        error: mock.fn(),
+        setFailed: mockSetFailed
+      },
+      '../src/cloudflare-client.js': {
+        default: mockCloudflare
+      }
+    }
+  )
+
+  await assert.rejects(
+    checkDeploymentStatus(
+      '123xyz',
+      'zentered',
+      'user@example.com',
+      'cf-project',
+      '123abc'
+    ),
+    {
+      message: 'Failed to fetch deployment status: No build id. Abort.'
+    }
+  )
+
+  assert.ok(mockSetFailed.mock.calls.length >= 1)
+  assert.equal(
+    mockSetFailed.mock.calls[0].arguments[0],
+    'no build with this ID found.'
+  )
+})
