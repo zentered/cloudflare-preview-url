@@ -125,7 +125,7 @@ This action uses the official
 [Cloudflare TypeScript SDK v5](https://github.com/cloudflare/cloudflare-typescript)
 and is compatible with:
 
-- Node.js 20+
+- Node.js 24+
 - Cloudflare Pages API v4
 - Both API Token (recommended) and Global API Key authentication
 
