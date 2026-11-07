@@ -5,9 +5,10 @@
 [![semantic-release: conventional](https://img.shields.io/badge/semantic--release-conventional-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
-Retrieve the preview/deployment URL from the Cloudflare API, filtered by the
-repository and branch. The URL can then be used for further end-to-end tests,
-link checks and other PR integrations/actions.
+Retrieve the preview/deployment URL of a Cloudflare Pages project or a
+Cloudflare Worker from the Cloudflare API, filtered by the repository and
+branch. The URL can then be used for further end-to-end tests, link checks and
+other PR integrations/actions.
 
 ## Usage
 
@@ -20,6 +21,8 @@ create a new token with the following permissions:
 - Account - Cloudflare Pages - Read
 - Include - [your page]
 
+For a Worker, use **Account - Workers Scripts - Read** instead.
+
 Copy the token and add it to your repository secrets as `CLOUDFLARE_API_TOKEN`.
 
 ### Global API Key (legacy)
@@ -27,8 +30,8 @@ Copy the token and add it to your repository secrets as `CLOUDFLARE_API_TOKEN`.
 If you cannot use an API Token, you can authenticate with a
 [Global API Key](https://dash.cloudflare.com/profile/api-tokens). Set your
 Global API Key as `CLOUDFLARE_API_TOKEN` and also add `CLOUDFLARE_ACCOUNT_EMAIL`
-with your Cloudflare account email. Do **not** mix these — if you're using an
-API Token, leave `CLOUDFLARE_ACCOUNT_EMAIL` unset.
+with your Cloudflare account email. Do **not** mix these. If you're using an API
+Token, leave `CLOUDFLARE_ACCOUNT_EMAIL` unset.
 
 ### Workflow template
 
@@ -65,6 +68,37 @@ jobs:
         run: echo "Preview URL: ${{ steps.cloudflare_preview_url.outputs.preview_url }}"
 ```
 
+### Workers Previews
+
+For a Worker that uses
+[Previews](https://developers.cloudflare.com/workers/previews/) (Workers Builds
+or `wrangler preview`), set `cloudflare_worker_name` instead of
+`cloudflare_project_id`. The action reads the Preview named after the branch and
+returns its latest deployment.
+
+The API token needs the **Account - Workers Scripts - Read** permission.
+
+```yaml
+- name: Get Worker Preview URL
+  uses: zentered/cloudflare-preview-url@v1
+  id: worker_preview_url
+  env:
+    CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+  with:
+    cloudflare_worker_name: 'your-worker-name'
+    commit_hash: ${{ github.event.pull_request.head.sha || github.sha }}
+    wait_until_ready: true
+```
+
+- `preview_url` is the deployment URL. It always points to this one deployment.
+- `branch_url` is the Preview URL. It always points to the latest deployment of
+  the branch.
+- `wait_until_ready: true` polls every 5 seconds until the Preview and a
+  matching deployment exist. Set `timeout-minutes` on the job to bound the wait.
+- `environment` does not apply to Workers.
+- If you set a custom Preview name, pass it as `branch`.
+
 ## Environment Variables / Secrets
 
 In your repository, go to "Settings" → "Secrets and variables" → "Actions" and
@@ -91,19 +125,21 @@ add the following secrets:
 
 ## Inputs
 
-| Name                    | Requirement  | Default     | Description                                                                                                   |
-| ----------------------- | ------------ | ----------- | ------------------------------------------------------------------------------------------------------------- |
-| `cloudflare_project_id` | **required** | -           | Cloudflare Pages project name (found in your Cloudflare Pages dashboard)                                      |
-| `wait_until_ready`      | optional     | `false`     | Wait until the Cloudflare deployment is ready before returning the URL                                        |
-| `environment`           | optional     | `preview`   | Filter by deployment environment (`preview` or `production`). Set to empty string to include all environments |
-| `commit_hash`           | optional     | -           | Filter deployments by commit hash. Useful when the same branch has multiple deployments                       |
-| `branch`                | optional     | auto-detect | Override branch name for filtering. By default, uses the branch from the GitHub context                       |
+| Name                     | Requirement | Default     | Description                                                                                                   |
+| ------------------------ | ----------- | ----------- | ------------------------------------------------------------------------------------------------------------- |
+| `cloudflare_project_id`  | one of      | -           | Cloudflare Pages project name (found in your Cloudflare Pages dashboard)                                      |
+| `cloudflare_worker_name` | one of      | -           | Worker name or id. Reads a [Worker Preview](#workers-previews) instead of a Pages deployment                  |
+| `wait_until_ready`       | optional    | `false`     | Wait until the Cloudflare deployment is ready before returning the URL                                        |
+| `environment`            | optional    | `preview`   | Filter by deployment environment (`preview` or `production`). Set to empty string to include all environments |
+| `commit_hash`            | optional    | -           | Filter deployments by commit hash. Useful when the same branch has multiple deployments                       |
+| `branch`                 | optional    | auto-detect | Override branch name for filtering. By default, uses the branch from the GitHub context                       |
 
 ## Outputs
 
 | Name          | Description                                                                                                            |
 | ------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | `preview_url` | A string with the unique URL of the deployment. Always set when a deployment is found, regardless of deployment status |
+| `branch_url`  | The stable branch URL: the Pages branch alias or the Worker Preview URL. Empty when Cloudflare returns none            |
 
 The action searches the newest 250 deployments of the project, newest first. It
 stops at the first match. If none of them match, it fails with
@@ -122,11 +158,11 @@ stops at the first match. If none of them match, it fails with
 ## Compatibility
 
 This action uses the official
-[Cloudflare TypeScript SDK v5](https://github.com/cloudflare/cloudflare-typescript)
+[Cloudflare TypeScript SDK v7](https://github.com/cloudflare/cloudflare-typescript)
 and is compatible with:
 
-- Node.js 20+
-- Cloudflare Pages API v4
+- The GitHub Actions `node24` runtime
+- Cloudflare API v4: Pages deployments and Worker Previews
 - Both API Token (recommended) and Global API Key authentication
 
 ## Contributing
