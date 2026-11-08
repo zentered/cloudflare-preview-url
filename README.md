@@ -134,6 +134,12 @@ add the following secrets:
 | `commit_hash`            | optional    | -           | Filter deployments by commit hash. Useful when the same branch has multiple deployments                       |
 | `branch`                 | optional    | auto-detect | Override branch name for filtering. By default, uses the branch from the GitHub context                       |
 
+A Pages deployment without a git source, such as a direct upload from
+`wrangler pages deploy` or a deploy hook, has no repository name. The action
+matches it on branch, environment and commit hash only. A direct upload to the
+same project with the same branch name can be returned. Set `commit_hash` to
+pin the result to one commit.
+
 ## Outputs
 
 | Name          | Description                                                                                                            |
